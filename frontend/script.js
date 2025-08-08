@@ -186,11 +186,18 @@
     return await res.json();
   }
 
+  const backend = {
+    base: 'http://127.0.0.1:5000',
+    async status(){
+      try { return await fetchJSON(`${this.base}/api/status`); } catch (_) { return null; }
+    }
+  };
+
   async function refreshBanks(){
     const select = document.getElementById('mr-bank');
     if (!select) return;
     try {
-      const data = await fetchJSON('http://127.0.0.1:5000/api/banks');
+      const data = await fetchJSON(`${backend.base}/api/banks`);
       select.innerHTML = '';
       for (const b of data.banks){
         const opt = document.createElement('option');
@@ -206,16 +213,17 @@
     if (!container) return;
     container.textContent = 'Loading index...';
     try {
-      const idx = await fetchJSON('http://127.0.0.1:5000/api/index');
+      const idx = await fetchJSON(`${backend.base}/api/index`);
       const lines = [];
       for (const bank of Object.keys(idx)){
         lines.push(`Bank: ${bank}`);
         for (const r of idx[bank].reports){
-          lines.push(`  - FY${r.year}: ${r.path}`);
+          const sizeInfo = (r.size_bytes && r.size_bytes > 0) ? ` (${(r.size_bytes/1024/1024).toFixed(2)} MB)` : ' (not downloaded)';
+          lines.push(`  - FY${r.year}: ${r.path}${sizeInfo}`);
         }
       }
       container.textContent = lines.join('\n') || 'No reports found yet.';
-    } catch (e){ container.textContent = 'Backend not reachable.'; }
+    } catch (e){ container.textContent = 'Backend not reachable. Start it via backend/Run Backend.command'; }
   }
 
   async function uploadReport(){
@@ -227,19 +235,25 @@
     form.append('bank', bank);
     form.append('year', year);
     form.append('file', file);
-    await fetchJSON('http://127.0.0.1:5000/api/upload', { method: 'POST', body: form });
-    await refreshIndex();
+    try {
+      await fetchJSON(`${backend.base}/api/upload`, { method: 'POST', body: form });
+      await refreshIndex();
+      alert('Uploaded and indexed.');
+    } catch (e){ alert('Upload failed. Ensure backend is running.'); }
   }
 
   async function collectSelected(){
     const bank = document.getElementById('mr-bank')?.value;
     if (!bank) return;
-    await fetchJSON('http://127.0.0.1:5000/api/collect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bank, years: 6 })
-    });
-    await refreshIndex();
+    try {
+      await fetchJSON(`${backend.base}/api/collect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bank, years: 6 })
+      });
+      await refreshIndex();
+      alert('Collection started/completed for selected bank (best-effort).');
+    } catch (e){ alert('Collect failed. Ensure backend is running.'); }
   }
 
   async function collectAll(){
@@ -248,12 +262,15 @@
     // Collect all banks visible in dropdown
     const banks = Array.from(select.options).map(o => o.value);
     if (banks.length === 0) return;
-    await fetchJSON('http://127.0.0.1:5000/api/collect_all', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ banks, years: 6 })
-    });
-    await refreshIndex();
+    try {
+      await fetchJSON(`${backend.base}/api/collect_all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ banks, years: 6 })
+      });
+      await refreshIndex();
+      alert('Collection started/completed for all banks (best-effort).');
+    } catch (e){ alert('Collect all failed. Ensure backend is running.'); }
   }
 
   function wireManageReports(){
@@ -268,8 +285,24 @@
   }
 
   // Initialize panel
-  refreshBanks();
-  refreshIndex();
+  (async () => {
+    const status = await backend.status();
+    const banner = document.createElement('div');
+    banner.style.fontSize = '12px';
+    banner.style.marginTop = '8px';
+    const manage = document.getElementById('manage-reports');
+    if (manage) manage.prepend(banner);
+    if (status) {
+      banner.textContent = 'Backend connected.';
+      await refreshBanks();
+      await refreshIndex();
+    } else {
+      banner.textContent = 'Backend not connected. To enable collection/upload, double-click backend/Run Backend.command';
+      // still render banks/index best-effort
+      await refreshBanks();
+      await refreshIndex();
+    }
+  })();
   wireManageReports();
 })();
 

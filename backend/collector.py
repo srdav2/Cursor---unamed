@@ -173,10 +173,15 @@ def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
 
 
 def choose_latest_n_years(candidates: List[Tuple[int, str, str]], n: int = 6) -> List[Tuple[int, str, str]]:
+    # Filter to a sensible FY window (e.g., 2015..current_year+1)
+    current_year = datetime.utcnow().year
+    min_year = 2015
+    max_year = current_year + 1
+    filtered = [(y, u, l) for (y, u, l) in candidates if min_year <= y <= max_year]
     # Sort by year desc and pick top distinct years
     seen: set[int] = set()
     chosen: List[Tuple[int, str, str]] = []
-    for year, url, label in sorted(candidates, key=lambda t: t[0], reverse=True):
+    for year, url, label in sorted(filtered, key=lambda t: t[0], reverse=True):
         if year in seen:
             continue
         seen.add(year)
@@ -221,9 +226,17 @@ def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, Lis
             if not m:
                 continue
             year = m.group(1)
+            file_path = os.path.join("data", "reports", bank, fname)
+            abs_path = os.path.join(base_dir, bank, fname)
+            size = 0
+            try:
+                size = os.path.getsize(abs_path)
+            except OSError:
+                size = 0
             entries.append({
                 "year": year,
-                "path": os.path.join("data", "reports", bank, fname),
+                "path": file_path,
+                "size_bytes": size,
             })
         entries.sort(key=lambda e: e["year"], reverse=True)
         index[bank] = {"reports": entries}
