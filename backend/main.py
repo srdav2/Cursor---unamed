@@ -94,7 +94,9 @@ def api_index_approve():
     entry = next((r for r in idx.get(bank, {}).get('reports', []) if r['year'] == year), None)
     if not entry:
         return jsonify({"error": "entry not found"}), 404
-    marker = entry['abs_path'] + '.approved'
+    # Construct absolute path from relative path
+    abs_path = Path(entry['path']).resolve()
+    marker = str(abs_path) + '.approved'
     import os
     try:
         with open(marker, 'w') as f:
@@ -116,14 +118,16 @@ def api_index_reject():
     entry = next((r for r in idx.get(bank, {}).get('reports', []) if r['year'] == year), None)
     if not entry:
         return jsonify({"error": "entry not found"}), 404
+    # Construct absolute path from relative path
+    abs_path = Path(entry['path']).resolve()
     # remove the file
     import os
     try:
-        if os.path.exists(entry['abs_path']):
-            os.remove(entry['abs_path'])
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
         # remove marker if exists
-        if os.path.exists(entry['abs_path'] + '.approved'):
-            os.remove(entry['abs_path'] + '.approved')
+        if os.path.exists(str(abs_path) + '.approved'):
+            os.remove(str(abs_path) + '.approved')
     except OSError:
         return jsonify({"error": "failed to delete"}), 500
     update_index()
@@ -142,7 +146,9 @@ def api_file():
     if not entry:
         return jsonify({"error": "entry not found"}), 404
     try:
-        return send_file(entry['abs_path'], as_attachment=False)
+        # Construct absolute path from relative path
+        abs_path = Path(entry['path']).resolve()
+        return send_file(abs_path, as_attachment=False)
     except Exception as exc:
         return jsonify({"error": f"failed to open file: {exc}"}), 500
 
