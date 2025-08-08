@@ -1,0 +1,19 @@
+{
+  "name": "finsight-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "electron": "28.2.0",
+    "execa": "7.2.0"
+  },
+  "devDependencies": {
+    "electron-builder": "24.13.3"
+  }
+}
+
