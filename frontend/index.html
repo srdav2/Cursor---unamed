@@ -208,7 +208,8 @@
               <button id="mr-cleanup" class="button" title="Remove invalid/out-of-range PDFs and reindex">Cleanup Library</button>
               <button id="mr-migrate" class="button" title="Move PDFs from downloads into library and validate">Migrate Downloads</button>
             </div>
-            <div style="margin-top: 16px;">
+            <div style="margin-top: 16px; position: relative;">
+              <div id="backend-status-pill" style="position:absolute; top:-36px; right:0; padding:4px 10px; border-radius:16px; font-size:12px; background:#b00020; color:white;">Backend: Disconnected</div>
               <h3>Library Index</h3>
               <div id="mr-index-table" style="overflow:auto;"></div>
               <details style="margin-top:8px;">

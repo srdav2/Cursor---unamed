@@ -6,7 +6,8 @@ from scraper import extract_financial_data, FINANCIAL_SCHEMA, BANK_REGISTRY
 from collector import collect_bank_reports, collect_all, collect_from_urls, update_index, cleanup_reports, migrate_existing
 
 app = Flask(__name__)
-CORS(app)
+# Relaxed CORS for file:// origin (shows as Origin: null)
+CORS(app, resources={r"/api/*": {"origins": ["*", "null"]}}, supports_credentials=False)
 
 @app.route('/api/status')
 def status():
@@ -132,12 +133,12 @@ def api_upload():
     return jsonify({"bank": bank, "year": year, "path": dest})
 
 
-@app.route('/api/maintenance/cleanup', methods=['POST'])
+@app.route('/api/maintenance/cleanup', methods=['POST', 'GET'])
 def api_cleanup():
     return jsonify(cleanup_reports())
 
 
-@app.route('/api/maintenance/migrate', methods=['POST'])
+@app.route('/api/maintenance/migrate', methods=['POST', 'GET'])
 def api_migrate():
     return jsonify(migrate_existing())
 

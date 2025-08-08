@@ -353,17 +353,13 @@
   // Initialize panel
   (async () => {
     const status = await backend.status();
-    const banner = document.createElement('div');
-    banner.style.fontSize = '12px';
-    banner.style.marginTop = '8px';
-    const manage = document.getElementById('manage-reports');
-    if (manage) manage.prepend(banner);
+    const pill = document.getElementById('backend-status-pill');
     if (status) {
-      banner.textContent = 'Backend connected.';
+      if (pill){ pill.textContent = 'Backend: Connected'; pill.style.background = '#0b7a0b'; }
       await refreshBanks();
       await refreshIndex();
     } else {
-      banner.textContent = 'Backend not connected. To enable collection/upload, double-click backend/Run Backend.command';
+      if (pill){ pill.textContent = 'Backend: Disconnected'; pill.style.background = '#b00020'; }
       // still render banks/index best-effort
       await refreshBanks();
       await refreshIndex();
