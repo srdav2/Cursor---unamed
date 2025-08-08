@@ -12,10 +12,11 @@ from urllib.parse import urljoin
 from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
 import pdfplumber
 import shutil
+import time
 import ollama
 
 
-def classify_document_with_ollama(pdf_path: str, timeout: int = 30) -> Optional[Dict[str, any]]:
+def triage_document_type_with_ollama(pdf_path: str, timeout: int = 30) -> Optional[Dict[str, any]]:
     """
     Use local Ollama Llama3.1 to classify the document type from the first few pages.
     Returns a dict with 'document_type' and 'confidence_score' (0-10) or None on failure.
@@ -24,10 +25,10 @@ def classify_document_with_ollama(pdf_path: str, timeout: int = 30) -> Optional[
         client = ollama.Client(timeout=timeout)
         # Check if model is available, to provide a better error message.
         try:
-            client.show('llama3.1:8b')
+            client.show('phi3:mini')
         except ollama.ResponseError as e:
             if e.status_code == 404:
-                logger.error("Ollama model 'llama3.1:8b' not found. Please run `ollama pull llama3.1:8b`")
+                logger.error("Ollama model 'phi3:mini' not found. Please run `ollama pull llama3.1:8b`")
                 return None
             raise
 
@@ -54,7 +55,7 @@ Document Text:
 ---
 """
         response = client.generate(
-            model='llama3.1:8b',
+            model='phi3:mini',
             prompt=prompt,
             format='json',
             options={'temperature': 0.1}
@@ -81,6 +82,98 @@ Document Text:
         
     return None
 
+
+def verify_financial_statements_with_ollama(pdf_path: str, timeout: int = 45) -> Dict[str, bool]:
+    """
+    Scans the first 25 pages of a PDF to verify the presence of key financial statements.
+    """
+    results = {
+        "has_income_statement": False,
+        "has_balance_sheet": False,
+        "has_cash_flow_statement": False,
+    }
+    try:
+        text = _read_pdf_text_head(pdf_path, max_pages=25)
+        if not text.strip():
+            return results
+
+        prompt = f"""
+As an auditor, your task is to verify the presence of the three main financial statements in this document's text, which is from the first ~25 pages of a financial report.
+Read the text and determine if it explicitly contains:
+1.  An Income Statement (might be called 'Consolidated Statement of Income', 'Statement of Operations', or 'Profit and Loss').
+2.  A Balance Sheet (might be called 'Consolidated Statement of Financial Position').
+3.  A Statement of Cash Flows (might be called 'Consolidated Statement of Cash Flows').
+
+You MUST respond ONLY with a valid JSON object with boolean flags. Example:
+{{"has_income_statement": true, "has_balance_sheet": true, "has_cash_flow_statement": false}}
+
+Document Text:
+---
+{text[:12000]}
+---
+"""
+        client = ollama.Client(timeout=timeout)
+        response = client.generate(
+            model='phi3:mini',
+            prompt=prompt,
+            format='json',
+            options={'temperature': 0.0}
+        )
+        response_text = response.get('response', '{}').strip()
+        response_text = re.sub(r'^```json\s*|\s*```$', '', response_text)
+        data = json.loads(response_text)
+
+        results["has_income_statement"] = bool(data.get("has_income_statement"))
+        results["has_balance_sheet"] = bool(data.get("has_balance_sheet"))
+        results["has_cash_flow_statement"] = bool(data.get("has_cash_flow_statement"))
+
+    except Exception as e:
+        logger.error(f"Ollama statement verification failed: {e}")
+    
+    return results
+
+
+def find_annual_report_page_with_ollama(html_content: str, url: str) -> float:
+    """
+    Use Ollama to determine if a webpage is a good candidate for finding annual reports.
+    Returns a score from 0.0 to 1.0.
+    """
+    try:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        # Try to find the main content area to reduce noise
+        main_content = soup.find('main') or soup.find('article') or soup.find('div', id='main') or soup
+        text = main_content.get_text(separator='\n', strip=True)
+
+        if not text.strip():
+            return 0.0
+
+        prompt = f"""
+As a financial analyst, your task is to evaluate if a webpage is the primary page for a bank's annual financial reports.
+Analyze the text content from the URL: {url}
+Based on the text, which includes headings, link text, and paragraphs, does this page seem dedicated to listing annual reports, or is it a general investor page, news page, or something else?
+A good page will have phrases like "Annual Report", "Financial Statements", and a list of years. A bad page will be about news, stock price, or general governance.
+
+Respond with a single float number from 0.0 (not a report page) to 1.0 (definitely the main report page).
+
+Webpage Text (first 8000 chars):
+---
+{text[:8000]}
+---
+"""
+        client = ollama.Client(timeout=30)
+        response = client.generate(
+            model='phi3:mini',
+            prompt=prompt,
+            # No JSON format, expect a simple float string
+        )
+        response_text = response.get('response', '0.0').strip()
+        # Extract the first valid float from the response
+        match = re.search(r'[-+]?\d*\.\d+|\d+', response_text)
+        if match:
+            return float(match.group())
+    except Exception as e:
+        logger.error(f"Ollama page analysis failed for {url}: {e}")
+    return 0.0
 
 
 
@@ -236,64 +329,71 @@ def pre_download_filter(url: str, text: str) -> bool:
 def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
     """
     Discover candidate (year, pdf_url, label) tuples for a bank from configured sources.
+    Uses Ollama to score and prioritize promising pages.
     """
     sources_map = load_bank_sources()
-    sources = sources_map.get(bank.lower(), [])
+    initial_sources = sources_map.get(bank.lower(), [])
     results: List[Tuple[int, str, str]] = []
     
     min_year, max_year = _year_bounds()
-
-    for src in sources:
+    
+    # Use Ollama to find the best source pages from the initial list
+    scored_sources = []
+    for src_url in initial_sources:
         try:
-            r = http_get(src)
-            soup = BeautifulSoup(r.text, "html.parser")
+            r = http_get(src_url)
+            score = find_annual_report_page_with_ollama(r.text, src_url)
+            if score > 0.3: # Threshold for considering a page
+                scored_sources.append((score, src_url, r.text))
+        except Exception as exc:
+            logger.warning("Could not analyze source %s: %s", src_url, exc)
+    
+    # Sort by score descending, so we check the best pages first
+    scored_sources.sort(key=lambda x: x[0], reverse=True)
 
-            # Collect direct PDF links that pass pre-download filter
-            pdf_links = extract_pdf_links_from_html(r.text, src)
+    # Limit to top N sources to avoid excessive scraping
+    for score, src_url, src_html in scored_sources[:3]:
+        logger.info(f"Processing source '{src_url}' (Ollama score: {score:.2f})")
+        try:
+            soup = BeautifulSoup(src_html, "html.parser")
+            
+            # 1. Direct PDF links from the high-quality source page
+            pdf_links = extract_pdf_links_from_html(src_html, src_url)
             for url, label in pdf_links:
-                if not pre_download_filter(url, label):
-                    continue
-                
-                years = extract_year_candidates(label) or extract_year_candidates(url)
-                if not years:
-                    continue
-                
-                year = max(y for y in years if min_year <= y <= max_year)
-                if year:
-                    results.append((year, url, label))
+                if pre_download_filter(url, label):
+                    years = extract_year_candidates(label) or extract_year_candidates(url)
+                    if years:
+                        year = max(y for y in years if min_year <= y <= max_year)
+                        if year:
+                            results.append((year, url, label))
 
-            # Also follow candidate detail pages
+            # 2. Follow promising sub-pages (depth-1)
             candidate_pages: List[str] = []
             for a in soup.find_all("a", href=True):
                 href = a["href"].strip()
+                if not href or href.startswith('#') or href.lower().endswith(".pdf"):
+                    continue
+                
                 label = (a.get_text(" ", strip=True) or "").lower()
-                
-                if href.lower().endswith(".pdf"):
-                    continue # Already handled above
-                
-                if pre_download_filter(urljoin(src,href), label):
-                    candidate_pages.append(urljoin(src, href))
+                # Use pre-download filter keywords to find promising sub-pages
+                if any(kw in label for kw in ["annual report", "financial statement", "archive", "all reports"]):
+                    candidate_pages.append(urljoin(src_url, href))
 
-            # Depth-1: fetch candidate pages and extract PDFs
-            for page_url in list(set(candidate_pages))[:8]:  # Safety cap
+            for page_url in list(set(candidate_pages))[:5]:  # Safety cap
                 try:
                     pr = http_get(page_url)
                     sub_pdfs = extract_pdf_links_from_html(pr.text, page_url)
                     for url, label in sub_pdfs:
-                        if not pre_download_filter(url, label):
-                           continue
-                        
-                        years = extract_year_candidates(label) or extract_year_candidates(url)
-                        if not years:
-                            continue
-
-                        year = max(y for y in years if min_year <= y <= max_year)
-                        if year:
-                            results.append((year, url, label))
+                        if pre_download_filter(url, label):
+                            years = extract_year_candidates(label) or extract_year_candidates(url)
+                            if years:
+                                year = max(y for y in years if min_year <= y <= max_year)
+                                if year:
+                                    results.append((year, url, label))
                 except Exception as exc:
                     logger.debug("Skip candidate page %s: %s", page_url, exc)
         except Exception as exc:
-            logger.warning("Failed to parse %s: %s", src, exc)
+            logger.warning("Failed to parse %s: %s", src_url, exc)
 
     # Deduplicate by (year, url)
     dedup: Dict[Tuple[int, str], Tuple[int, str, str]] = {}
@@ -394,26 +494,44 @@ def compute_financial_report_score(pdf_path: str, bank: Optional[str], year: Opt
 
 def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> Tuple[bool, Optional[Dict[str, any]]]:
     """
-    Classifies a PDF using Ollama if available, falling back to heuristics.
-    Returns a tuple: (is_accepted, classification_details).
+    Performs a 2-step validation:
+    1. Triage the document type (e.g., Annual Report, Proxy Statement).
+    2. If it looks like an Annual Report, verify it contains the key financial statements.
     """
-    classification = classify_document_with_ollama(pdf_path)
-    if classification:
-        doc_type = classification.get("document_type", "Other")
-        score = classification.get("confidence_score", 0)
-        # Strict acceptance criteria
-        is_accepted = doc_type == "Annual Report" and score >= 7
-        return is_accepted, classification
+    # Step 1: Triage the document type
+    triage_details = triage_document_type_with_ollama(pdf_path)
+    if not triage_details:
+        # Fallback to old heuristic if Ollama fails for triage
+        score = compute_financial_report_score(pdf_path, bank, year)
+        is_accepted = score >= 5 # Use a slightly higher threshold for heuristic
+        fallback_details = {
+            "document_type": "Annual Report" if is_accepted else "Other",
+            "confidence_score": min(score, 10),
+            "source": "heuristic",
+            "audit": {"error": "Triage failed, used heuristic fallback."}
+        }
+        return is_accepted, fallback_details
 
-    # Fallback to old heuristic if Ollama fails
-    score = compute_financial_report_score(pdf_path, bank, year)
-    is_accepted = score >= 3
-    fallback_details = {
-        "document_type": "Annual Report" if is_accepted else "Other",
-        "confidence_score": min(score, 10), # Cap score at 10 for consistency
-        "source": "heuristic"
-    }
-    return is_accepted, fallback_details
+    doc_type = triage_details.get("document_type", "Other")
+    score = triage_details.get("confidence_score", 0)
+
+    # If triage does not identify it as an Annual Report, reject it immediately.
+    if doc_type != "Annual Report" or score < 7:
+        triage_details["audit"] = {"message": f"Rejected at triage stage due to type '{doc_type}' and score {score}."}
+        return False, triage_details
+
+    # Step 2: Verify the presence of core financial statements
+    audit_results = verify_financial_statements_with_ollama(pdf_path)
+    triage_details["audit"] = audit_results
+    
+    # A true annual report must contain all three statements.
+    is_fully_audited = all(audit_results.values())
+    
+    if not is_fully_audited:
+        missing = [k for k, v in audit_results.items() if not v]
+        logger.info(f"Rejected '{pdf_path}' because it was missing: {', '.join(missing)}")
+
+    return is_fully_audited, triage_details
 
 
 def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[Dict[str, any]]:
@@ -606,13 +724,14 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
     return {"reports": saved}
 
 
-def validate_library():
+def validate_library(throttle_secs: int = 0, force_revalidate: bool = False):
     """
     Generator function that yields classification progress events for streaming.
+    Skips documents that have already been confirmed as Annual Reports, unless force_revalidate is True.
     """
     base_dir = os.path.join("data", "reports")
     if not os.path.exists(base_dir):
-        yield {"type": "finish", "reclassified": 0, "failed": 0, "message": "No reports directory found."}
+        yield {"type": "finish", "reclassified": 0, "failed": 0, "skipped": 0, "message": "No reports directory found."}
         return
 
     all_pdfs = []
@@ -629,16 +748,36 @@ def validate_library():
 
     reclassified = 0
     failed = 0
+    skipped = 0
     for i, (bank, fname, abs_path) in enumerate(all_pdfs):
         yield {"type": "progress", "current": i + 1, "total": total_docs, "path": fname}
         
+        classification_path = abs_path + ".classification.json"
+        
+        # Check if already validated and confirmed, and if we are not forcing a re-validation
+        if not force_revalidate and os.path.exists(classification_path):
+            try:
+                with open(classification_path, 'r', encoding='utf-8') as f:
+                    existing_class = json.load(f)
+                if existing_class.get("document_type") == "Annual Report" and (existing_class.get("confidence_score", 0) >= 7 or existing_class.get("source") == "manual_approval"):
+                    is_audited = existing_class.get("audit", {}).get("has_income_statement") and existing_class.get("audit", {}).get("has_balance_sheet") and existing_class.get("audit", {}).get("has_cash_flow_statement")
+                    if is_audited or existing_class.get("source") == "manual_approval":
+                      skipped += 1
+                      yield {"type": "result", "path": fname, "status": "skipped", "details": existing_class}
+                      # Throttle even when skipping to not flood the UI
+                      if throttle_secs > 0 and i < total_docs - 1:
+                          time.sleep(min(float(throttle_secs) / 4.0, 0.25))
+                      continue
+            except Exception:
+                pass # Will proceed to re-validate
+
         m = re.match(rf"{re.escape(bank)}_FY(\d+)_Annual_Report\.pdf$", fname, re.IGNORECASE)
         year = int(m.group(1)) if m else None
 
         try:
             is_accepted, details = is_likely_financial_report(abs_path, bank, year)
             if details:
-                with open(abs_path + ".classification.json", "w", encoding="utf-8") as f:
+                with open(classification_path, "w", encoding="utf-8") as f:
                     json.dump(details, f)
                 reclassified += 1
                 yield {"type": "result", "path": fname, "status": "success", "details": details}
@@ -649,9 +788,13 @@ def validate_library():
             logger.error(f"Failed to re-validate {abs_path}: {e}")
             failed += 1
             yield {"type": "result", "path": fname, "status": "error", "details": {"error": str(e)}}
-    
+        
+        # Throttle between requests to not overload the system
+        if throttle_secs > 0 and i < total_docs - 1:
+            time.sleep(throttle_secs)
+
     update_index()
-    yield {"type": "finish", "reclassified": reclassified, "failed": failed, "message": "Validation complete."}
+    yield {"type": "finish", "reclassified": reclassified, "failed": failed, "skipped": skipped, "message": "Validation complete."}
 
 
 def cleanup_reports() -> Dict[str, List[str]]:

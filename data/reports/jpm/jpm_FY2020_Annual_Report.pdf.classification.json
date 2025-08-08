@@ -1,1 +1,5 @@
-{"document_type": "Annual Report", "confidence_score": 10, "source": "heuristic"}
+{
+  "document_type": "Annual Report",
+  "confidence_score": 10.0,
+  "source": "manual_approval"
+}

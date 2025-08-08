@@ -24,9 +24,12 @@ def status():
 def api_validate():
     """
     Triggers a re-validation of all documents in the library and streams progress.
+    Accepts optional query param `?throttle_secs=2` and `?force=true`
     """
+    throttle_secs = int(request.args.get('throttle_secs') or 0)
+    force_revalidate = request.args.get('force', 'false').lower() == 'true'
     def generate():
-        for event in validate_library():
+        for event in validate_library(throttle_secs=throttle_secs, force_revalidate=force_revalidate):
             yield f"data: {json.dumps(event)}\n\n"
     
     return Response(generate(), mimetype='text/event-stream')
@@ -114,13 +117,21 @@ def api_index_approve():
         return jsonify({"error": "entry not found"}), 404
     # Construct absolute path from relative path
     abs_path = Path(entry['path']).resolve()
-    marker = str(abs_path) + '.approved'
+    
+    # Write a classification file that marks this as manually approved.
+    classification = {
+        "document_type": "Annual Report",
+        "confidence_score": 10.0,
+        "source": "manual_approval"
+    }
+    
     import os
     try:
-        with open(marker, 'w') as f:
-            f.write('approved')
+        with open(str(abs_path) + '.classification.json', 'w', encoding='utf-8') as f:
+            json.dump(classification, f, indent=2)
     except OSError:
         return jsonify({"error": "failed to write approval"}), 500
+    update_index()
     return jsonify({"ok": True})
 
 
@@ -138,14 +149,17 @@ def api_index_reject():
         return jsonify({"error": "entry not found"}), 404
     # Construct absolute path from relative path
     abs_path = Path(entry['path']).resolve()
-    # remove the file
+    
+    # remove the file and its classification
     import os
     try:
         if os.path.exists(abs_path):
             os.remove(abs_path)
-        # remove marker if exists
-        if os.path.exists(str(abs_path) + '.approved'):
-            os.remove(str(abs_path) + '.approved')
+        
+        classification_file = str(abs_path) + '.classification.json'
+        if os.path.exists(classification_file):
+            os.remove(classification_file)
+            
     except OSError:
         return jsonify({"error": "failed to delete"}), 500
     update_index()

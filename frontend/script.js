@@ -97,6 +97,51 @@
     }
   });
 
+  // Simple hash-based router
+  function handleNavigation(){
+    const page = window.location.hash.substring(1) || 'dashboard';
+    const allPages = document.querySelectorAll('[data-page-content]');
+    const activeLink = document.querySelector(`.menu-link[data-page="${page}"]`);
+    const allLinks = document.querySelectorAll('.menu-link[data-page]');
+
+    allPages.forEach(p => p.hidden = true);
+    allLinks.forEach(l => l.removeAttribute('aria-current'));
+
+    const pageContent = document.querySelector(`[data-page-content="${page}"]`);
+    if (pageContent) {
+        pageContent.hidden = false;
+    } else {
+        // Fallback to dashboard if page not found
+        document.querySelector('[data-page-content="dashboard"]').hidden = false;
+        document.querySelector(`.menu-link[data-page="dashboard"]`).setAttribute('aria-current', 'page');
+    }
+    
+    if (activeLink) {
+        activeLink.setAttribute('aria-current', 'page');
+    }
+
+    if(isMobile()){
+        closeMobileSidebar();
+    }
+  }
+
+  // Handle clicks on page links
+  document.addEventListener('click', e => {
+    const target = e.target;
+    if (target.matches('[data-page-link]')) {
+        e.preventDefault();
+        const page = target.getAttribute('data-page-link');
+        window.location.hash = page;
+    }
+  });
+
+  // Listen for hash changes
+  window.addEventListener('hashchange', handleNavigation);
+  
+  // Initial navigation
+  handleNavigation();
+
+
   // Manage responsive state changes
   const mq = window.matchMedia('(max-width: 980px)');
   const handleMedia = () => {
@@ -276,155 +321,222 @@
     } catch (e){ /* backend may be offline */ }
   }
 
-  async function refreshIndex(){
+  async function refreshIndex() {
     const rawContainer = document.getElementById('mr-index');
     const tableContainer = document.getElementById('mr-index-table');
     if (rawContainer) rawContainer.textContent = 'Loading index...';
     if (tableContainer) tableContainer.textContent = 'Loading...';
+
     try {
-      const idx = await fetchJSON(`${backend.base}/api/index`);
-      // raw debug
-      if (rawContainer){
-        const lines = [];
-        for (const bank of Object.keys(idx)){
-          lines.push(`Bank: ${bank}`);
-          for (const r of idx[bank].reports){
-            const sizeInfo = (r.size_bytes && r.size_bytes > 0) ? ` (${(r.size_bytes/1024/1024).toFixed(2)} MB)` : ' (not downloaded)';
-            lines.push(`  - FY${r.year}: ${r.path}${sizeInfo}`);
-          }
+        const idx = await fetchJSON(`${backend.base}/api/index`);
+        if (rawContainer) {
+            rawContainer.textContent = JSON.stringify(idx, null, 2);
         }
-        rawContainer.textContent = lines.join('\n') || 'No reports found yet.';
-      }
 
-      // years set from min..max in index
-      const yearsSet = new Set();
-      Object.values(idx).forEach((entry) => {
-        entry.reports.forEach(r => yearsSet.add(parseInt(r.year, 10)));
-      });
-      const years = Array.from(yearsSet).sort((a,b)=>a-b);
-      const banks = Object.keys(idx).sort();
+        if (tableContainer) {
+            renderIndexTable(tableContainer, idx);
+        }
+    } catch (e) {
+        if (tableContainer) tableContainer.textContent = 'Backend not reachable. Start it and refresh.';
+    }
+}
 
-      // build table
-      if (tableContainer){
-        const table = document.createElement('table');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
-        table.style.fontSize = '13px';
-        const thead = document.createElement('thead');
-        const trh = document.createElement('tr');
-        const th0 = document.createElement('th'); th0.textContent = 'Bank'; trh.appendChild(th0);
-        years.forEach(y => { 
-          const th = document.createElement('th'); 
-          th.textContent = `FY${y}`; 
-          th.colSpan = 2; // for status and actions
-          trh.appendChild(th); 
+
+function renderIndexTable(container, indexData) {
+    const allReports = [];
+    for (const bank in indexData) {
+        for (const report of indexData[bank].reports) {
+            allReports.push({ bank, ...report });
+        }
+    }
+    
+    // Initial sort: by bank, then year descending
+    allReports.sort((a, b) => {
+        if (a.bank < b.bank) return -1;
+        if (a.bank > b.bank) return 1;
+        return b.year - a.year;
+    });
+
+    let currentSort = { key: 'bank', dir: 'asc' };
+
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    function createHeader() {
+        const headers = [
+            { key: 'bank', label: 'Bank & Year' },
+            { key: 'status', label: 'Status' },
+            { key: 'doc_type', label: 'Detected Type' },
+            { key: 'audit', label: 'Audit Summary' },
+            { key: 'actions', label: 'Actions' }
+        ];
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h.label;
+            if (h.key !== 'actions') {
+                th.style.cursor = 'pointer';
+                th.addEventListener('click', () => sortAndRender(h.key));
+            }
+            tr.appendChild(th);
         });
-        thead.appendChild(trh);
-        const tbody = document.createElement('tbody');
+        thead.innerHTML = '';
+        thead.appendChild(tr);
+    }
 
-        function cell(content, downloaded, classification){
-          const td = document.createElement('td');
-          td.style.border = '1px solid #e0e0e0';
-          td.style.textAlign = 'center';
-          td.style.padding = '4px 6px';
-          
-          let title = '';
-          if (classification) {
-            title = `Type: ${classification.document_type || 'N/A'}\nScore: ${classification.confidence_score?.toFixed(1) || 'N/A'}\nSource: ${classification.source || 'Ollama'}`;
-          }
-          td.title = title;
+    function populateTable() {
+        tbody.innerHTML = '';
+        allReports.forEach(r => {
+            const tr = document.createElement('tr');
+            
+            // Status logic
+            const classification = r.classification || {};
+            const isAccepted = classification.document_type === 'Annual Report' && all(classification.audit);
 
-          td.textContent = content;
-          if (downloaded === true) td.style.color = '#0b7a0b';
-          if (downloaded === false) td.style.color = '#b00020';
-          return td;
-        }
+            // Bank & Year
+            const bankCell = document.createElement('td');
+            bankCell.innerHTML = `<strong>${r.bank.toUpperCase()}</strong><br><small>FY${r.year}</small>`;
+            tr.appendChild(bankCell);
 
-        function actionCell(bank, year, entry){
-          const td = document.createElement('td');
-          td.style.border = '1px solid #e0e0e0';
-          td.style.textAlign = 'center';
-          td.style.padding = '4px 6px';
-          if (!entry) { td.textContent = ''; return td; }
-          const openBtn = document.createElement('a');
-          // Build a file:// URL using absolute path when running off file://
-          const isFileCtx = location.protocol === 'file:' || location.origin === 'null';
-          if (isFileCtx) {
-            openBtn.href = `${backend.base}/api/file?bank=${encodeURIComponent(bank)}&year=${encodeURIComponent(year)}`;
-          } else {
-            openBtn.href = entry.path;
-          }
-          openBtn.target = '_blank';
-          openBtn.rel = 'noopener';
-          openBtn.title = 'Open file';
-          openBtn.textContent = '📄';
-          openBtn.style.marginRight = '8px';
+            // Status Cell
+            const statusCell = document.createElement('td');
+            const statusPill = document.createElement('span');
+            statusPill.className = 'pill';
+            if (isAccepted) {
+                statusPill.textContent = 'Accepted';
+                statusPill.classList.add('accepted');
+            } else if (!classification.document_type) {
+                statusPill.textContent = 'Needs Review';
+                 statusPill.classList.add('needs-review');
+            } else {
+                statusPill.textContent = 'Rejected';
+                statusPill.classList.add('rejected');
+            }
+            statusCell.appendChild(statusPill);
+            tr.appendChild(statusCell);
 
-          const approveBtn = document.createElement('button');
-          approveBtn.textContent = '✓';
-          approveBtn.title = 'Approve as annual report';
-          approveBtn.style.marginRight = '6px';
-          approveBtn.addEventListener('click', async () => {
+            // Detected Type
+            tr.appendChild(document.createElement('td')).textContent = classification.document_type || 'N/A';
+
+            // Audit Summary
+            const auditCell = document.createElement('td');
+            if (classification.audit) {
+                const a = classification.audit;
+                auditCell.innerHTML = `
+                    <div>${a.has_income_statement ? '✓' : '✗'} Income Stmt</div>
+                    <div>${a.has_balance_sheet ? '✓' : '✗'} Balance Sheet</div>
+                    <div>${a.has_cash_flow_statement ? '✓' : '✗'} Cash Flow</div>
+                `;
+            }
+            tr.appendChild(auditCell);
+
+            // Actions
+            tr.appendChild(actionCell(r.bank, r.year, r));
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function sortAndRender(key) {
+        const newDir = (currentSort.key === key && currentSort.dir === 'asc') ? 'desc' : 'asc';
+        allReports.sort((a,b) => {
+            let valA = a[key], valB = b[key];
+            if (key === 'status') {
+              valA = (a.classification?.document_type === 'Annual Report' && all(a.classification?.audit)) ? 2 : (a.classification?.document_type ? 1 : 0);
+              valB = (b.classification?.document_type === 'Annual Report' && all(b.classification?.audit)) ? 2 : (b.classification?.document_type ? 1 : 0);
+            }
+            if (newDir === 'asc') return valA > valB ? 1 : -1;
+            return valA < valB ? 1 : -1;
+        });
+        currentSort = { key, dir: newDir };
+        populateTable();
+    }
+    
+    function all(audit) {
+        return audit && audit.has_income_statement && audit.has_balance_sheet && audit.has_cash_flow_statement;
+    }
+
+    function actionCell(bank, year, entry) {
+        const td = document.createElement('td');
+        td.style.textAlign = 'center';
+        td.style.display = 'flex';
+        td.style.gap = '8px';
+
+        const openBtn = document.createElement('a');
+        openBtn.href = `${backend.base}/api/file?bank=${encodeURIComponent(bank)}&year=${encodeURIComponent(year)}`;
+        openBtn.target = '_blank';
+        openBtn.rel = 'noopener';
+        openBtn.title = 'Open file';
+        openBtn.textContent = '📄';
+        
+        const detailsBtn = document.createElement('button');
+        detailsBtn.textContent = 'ℹ️';
+        detailsBtn.title = 'View classification details';
+        detailsBtn.addEventListener('click', () => showDetailsModal(entry.classification));
+
+        const approveBtn = document.createElement('button');
+        approveBtn.textContent = '✓';
+        approveBtn.title = 'Manually Approve';
+        approveBtn.addEventListener('click', async () => {
             try {
-              await fetchJSON(`${backend.base}/api/index/approve`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bank, year })
-              });
-              await refreshIndex();
+                await fetchJSON(`${backend.base}/api/index/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bank, year }) });
+                await refreshIndex();
             } catch (e) { alert('Approve failed'); }
-          });
+        });
 
-          const rejectBtn = document.createElement('button');
-          rejectBtn.textContent = '×';
-          rejectBtn.title = 'Wrong document (delete)';
-          rejectBtn.addEventListener('click', async () => {
+        const rejectBtn = document.createElement('button');
+        rejectBtn.textContent = '×';
+        rejectBtn.title = 'Reject and Delete';
+        rejectBtn.addEventListener('click', async () => {
             if (!confirm(`Delete ${entry.path}?`)) return;
             try {
-              await fetchJSON(`${backend.base}/api/index/reject`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bank, year })
-              });
-              await refreshIndex();
+                await fetchJSON(`${backend.base}/api/index/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bank, year }) });
+                await refreshIndex();
             } catch (e) { alert('Delete failed'); }
-          });
-
-          td.appendChild(openBtn);
-          td.appendChild(approveBtn);
-          td.appendChild(rejectBtn);
-          return td;
-        }
-
-        banks.forEach(b => {
-          const tr = document.createElement('tr');
-          const name = document.createElement('td');
-          name.textContent = b.toUpperCase();
-          name.style.border = '1px solid #e0e0e0';
-          name.style.fontWeight = '600';
-          name.style.padding = '4px 6px';
-          tr.appendChild(name);
-          years.forEach(y => {
-            const hit = (idx[b]?.reports || []).find(r => parseInt(r.year,10) === y);
-            if (!hit) {
-              const td = document.createElement('td');
-              td.colSpan = 2; td.textContent = '×'; td.style.color = '#b00020'; td.style.border='1px solid #e0e0e0'; td.style.textAlign='center';
-              tr.appendChild(td);
-            } else {
-              const downloaded = !!(hit.size_bytes && hit.size_bytes > 0);
-              const isFinancial = hit.classification?.document_type === 'Annual Report';
-              const symbol = downloaded ? (isFinancial ? '✓' : '⚠︎') : '×';
-              tr.appendChild(cell(symbol, downloaded, hit.classification));
-              tr.appendChild(actionCell(b, y, hit));
-            }
-          });
-          tbody.appendChild(tr);
         });
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        tableContainer.innerHTML = '';
-        tableContainer.appendChild(table);
-      }
-    } catch (e){ container.textContent = 'Backend not reachable. Start it via backend/Run Backend.command'; }
-  }
+
+        td.appendChild(openBtn);
+        td.appendChild(detailsBtn);
+        td.appendChild(approveBtn);
+        td.appendChild(rejectBtn);
+        return td;
+    }
+    
+    container.innerHTML = '';
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    container.appendChild(table);
+
+    createHeader();
+    populateTable();
+}
+
+function showDetailsModal(classificationData) {
+    const modal = document.getElementById('details-modal');
+    const content = document.getElementById('modal-json-content');
+    if (modal && content) {
+        content.textContent = JSON.stringify(classificationData, null, 2) || 'No classification data available.';
+        modal.hidden = false;
+    }
+}
+
+function wireModals(){
+    const modal = document.getElementById('details-modal');
+    const closeBtn = modal?.querySelector('.close-button');
+    if(modal && closeBtn){
+        closeBtn.addEventListener('click', () => modal.hidden = true);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.hidden = true;
+            }
+        });
+    }
+}
+
+
+
 
   async function uploadReport(){
     const bank = document.getElementById('mr-bank')?.value;
@@ -488,8 +600,11 @@
       const logContainer = document.getElementById('log-container');
       if (!logContainer) return;
       
+      const throttleSecs = document.getElementById('settings-throttle')?.value || '0';
+      const forceRevalidate = document.getElementById('mr-force-revalidate')?.checked || false;
+
       logContainer.innerHTML = 'Connecting to validation stream...';
-      const eventSource = new EventSource(`${backend.base}/api/validate`);
+      const eventSource = new EventSource(`${backend.base}/api/validate?throttle_secs=${throttleSecs}&force=${forceRevalidate}`);
 
       eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
@@ -507,12 +622,17 @@
                 const score = details.confidence_score?.toFixed(1) || 'N/A';
                 logEntry.textContent = `[${new Date().toLocaleTimeString()}] ✅ SUCCESS: ${data.path} -> ${details.document_type} (Score: ${score})`;
                 logEntry.style.color = '#32cd32';
+            } else if (data.status === 'skipped') {
+                const score = details.confidence_score?.toFixed(1) || 'N/A';
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ⏩ SKIPPED: ${data.path} (Already confirmed as ${details.document_type}, score ${score})`;
+                logEntry.style.color = '#888';
             } else {
                 logEntry.textContent = `[${new Date().toLocaleTimeString()}] ❌ FAILED: ${data.path} - ${details.error || 'Unknown error'}`;
                 logEntry.style.color = '#ff6347';
             }
         } else if (data.type === 'finish') {
-          logEntry.textContent = `[${new Date().toLocaleTimeString()}] 🎉 ${data.message}`;
+          const summary = `Reclassified: ${data.reclassified}, Skipped: ${data.skipped}, Failed: ${data.failed}`;
+          logEntry.textContent = `[${new Date().toLocaleTimeString()}] 🎉 ${data.message} (${summary})`;
           logEntry.style.color = '#87ceeb';
           eventSource.close();
           refreshIndex(); // Refresh table now that it's all done
@@ -543,6 +663,16 @@
     if (validateBtn) validateBtn.addEventListener('click', validate);
   }
 
+  function wireSettings(){
+    const throttleSlider = document.getElementById('settings-throttle');
+    const throttleValue = document.getElementById('settings-throttle-value');
+    if (throttleSlider && throttleValue){
+      throttleSlider.addEventListener('input', (e) => {
+        throttleValue.textContent = `${e.target.value}s`;
+      });
+    }
+  }
+
   // Initialize panel
   (async () => {
     let status = await backend.status();
@@ -564,6 +694,8 @@
     }
   })();
   wireManageReports();
+  wireSettings();
+  wireModals();
 })();
 
 

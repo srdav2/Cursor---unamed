@@ -40,13 +40,22 @@
         <div class="sidebar-scroll">
           <ul class="menu" role="list">
             <li>
-              <a href="#" class="menu-item menu-link" aria-label="Dashboard" aria-current="page">
+              <a href="#dashboard" class="menu-item menu-link" data-page="dashboard" aria-label="Dashboard" aria-current="page">
                 <span class="icon" aria-hidden="true">
                   <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 10.5l9-7 9 7V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/></svg>
                 </span>
                 <span class="label">Dashboard</span>
                 <span class="tooltip" role="tooltip">Dashboard</span>
               </a>
+            </li>
+            <li>
+                <a href="#data-management" class="menu-item menu-link" data-page="data-management" aria-label="Data Management">
+                  <span class="icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0l-8-5-8 5m16 0v-3l-8-5-8 5v3" /></svg>
+                  </span>
+                  <span class="label">Data Management</span>
+                  <span class="tooltip" role="tooltip">Data Management</span>
+                </a>
             </li>
 
             <li class="has-children">
@@ -120,43 +129,13 @@
                 </li>
               </ul>
             </li>
-
-            <li>
-              <a href="#" class="menu-item menu-link" aria-label="Custom Analysis">
-                <span class="icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 19h16M6 17V7m4 10V5m4 12v-6m4 6V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </span>
-                <span class="label">Custom Analysis</span>
-                <span class="tooltip" role="tooltip">Custom Analysis</span>
-              </a>
-            </li>
-
-            <li>
-              <a href="#" class="menu-item menu-link" aria-label="Report Viewer">
-                <span class="icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 2h7l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 2v6h6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 13h8M8 17h8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                </span>
-                <span class="label">Report Viewer</span>
-                <span class="tooltip" role="tooltip">Report Viewer</span>
-              </a>
-            </li>
-
-            <li>
-              <a href="#" class="menu-item menu-link" aria-label="Search">
-                <span class="icon" aria-hidden="true">
-                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="label">Search</span>
-                <span class="tooltip" role="tooltip">Search</span>
-              </a>
-            </li>
           </ul>
 
           <div class="flex-spacer" aria-hidden="true"></div>
 
           <ul class="menu utility" role="list">
             <li>
-              <a href="#" class="menu-item menu-link" aria-label="Settings">
+              <a href="#settings" class="menu-item menu-link" data-page="settings" aria-label="Settings">
                 <span class="icon" aria-hidden="true">
                   <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
@@ -178,66 +157,100 @@
       </aside>
 
       <main id="main" class="main-content" tabindex="-1">
-        <div class="container">
+        <div data-page-content="dashboard" class="container">
           <h1>Dashboard</h1>
-          <p>
-            Welcome to FinSight. Use the navigation to explore analyses and reports.
-          </p>
-          <section id="manage-reports" style="margin-top: 24px;">
-            <h2>Manage Reports</h2>
-            <p>Use the tools below to build your report library without using a terminal.</p>
-            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
-              <div>
-                <label for="mr-bank">Bank</label>
-                <select id="mr-bank"></select>
-              </div>
-              <div>
-                <label for="mr-year">Year</label>
-                <input id="mr-year" type="number" min="2010" max="2100" placeholder="2024" />
-              </div>
-              <div>
-                <label for="mr-file">Upload PDF</label>
-                <input id="mr-file" type="file" accept="application/pdf" />
-              </div>
-              <button id="mr-upload" class="button">Save to Library</button>
-              <button id="mr-refresh-index" class="button" title="Refresh index from backend">Refresh Index</button>
-            </div>
-            <div style="margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-              <button id="mr-collect-selected" class="button">Collect Latest 6 (Selected Bank)</button>
-              <button id="mr-collect-all" class="button">Collect Latest 6 (All Banks)</button>
-              <button id="mr-cleanup" class="button" title="Remove invalid/out-of-range PDFs and reindex">Cleanup Library</button>
-              <button id="mr-migrate" class="button" title="Move PDFs from downloads into library and validate">Migrate Downloads</button>
-              <button id="mr-validate" class="button" title="Re-run classification on all PDFs in the library">Validate Library</button>
-            </div>
-            <div id="mr-validation-results" style="margin-top: 16px;"></div>
+          <p>Welcome to FinSight. This dashboard will eventually contain visualizations of the extracted financial data.</p>
+          <p>For now, please use the <a href="#data-management" data-page-link="data-management">Data Management</a> page to build your report library.</p>
+        </div>
 
-            <div id="live-validation-log" style="margin-top: 16px;">
-              <h4>Live Validation Log</h4>
-              <div id="log-container" style="font-size: 12px; background:#1e1e1e; color: #d4d4d4; border:1px solid #333; padding:8px; border-radius:6px; max-height:300px; overflow:auto; font-family: monospace;">
-                Click "Validate Library" to start...
-              </div>
+        <div data-page-content="data-management" class="container" hidden>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h1>Data Management</h1>
+                <div id="backend-status-pill" style="padding:4px 10px; border-radius:16px; font-size:12px; background:#b00020; color:white; margin-top: 8px;">Backend: Disconnected</div>
             </div>
+            <p>Use the tools below to discover, upload, and validate annual reports for your financial library.</p>
+            
+            <section id="manage-reports" style="margin-top: 24px;">
+                <details open>
+                    <summary><h3>Automated Collection</h3></summary>
+                    <div style="margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                      <button id="mr-collect-selected" class="button">Collect Latest 6 (Selected Bank)</button>
+                      <button id="mr-collect-all" class="button">Collect Latest 6 (All Banks)</button>
+                    </div>
+                </details>
 
-            <div style="margin-top: 16px; position: relative;">
-              <div id="backend-status-pill" style="position:absolute; top:-36px; right:0; padding:4px 10px; border-radius:16px; font-size:12px; background:#b00020; color:white;">Backend: Disconnected</div>
+                <details style="margin-top: 24px;">
+                    <summary><h3>Manual Upload</h3></summary>
+                    <div style="margin-top: 12px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+                      <div>
+                        <label for="mr-bank">Bank</label>
+                        <select id="mr-bank"></select>
+                      </div>
+                      <div>
+                        <label for="mr-year">Year</label>
+                        <input id="mr-year" type="number" min="2010" max="2100" placeholder="2024" />
+                      </div>
+                      <div>
+                        <label for="mr-file">Upload PDF</label>
+                        <input id="mr-file" type="file" accept="application/pdf" />
+                      </div>
+                      <button id="mr-upload" class="button">Save to Library</button>
+                    </div>
+                </details>
+
+                <details open style="margin-top: 24px;">
+                    <summary><h3>Library Maintenance</h3></summary>
+                    <div style="margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                      <button id="mr-validate" class="button" title="Re-run classification on all PDFs in the library">Validate Library</button>
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" id="mr-force-revalidate" />
+                        <label for="mr-force-revalidate" title="If checked, ignores saved results and re-analyzes every PDF.">Force Re-validation</label>
+                      </div>
+                      <button id="mr-refresh-index" class="button" title="Refresh index from backend">Refresh Index</button>
+                    </div>
+                    <div id="live-validation-log" style="margin-top: 16px;">
+                      <h4>Live Validation Log</h4>
+                      <div id="log-container" style="font-size: 12px; background:#1e1e1e; color: #d4d4d4; border:1px solid #333; padding:8px; border-radius:6px; max-height:300px; overflow:auto; font-family: monospace;">
+                        Click "Validate Library" to start...
+                      </div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="library-index" style="margin-top: 24px;">
               <h3>Library Index</h3>
+              <p>A detailed list of all documents in the library. Click column headers to sort.</p>
               <div id="mr-index-table" style="overflow:auto;"></div>
               <details style="margin-top:8px;">
                 <summary>Raw index (debug)</summary>
                 <div id="mr-index" style="font-size: 12px; background:#f6f6f6; border:1px solid #e0e0e0; padding:8px; border-radius:6px; max-height:280px; overflow:auto;"></div>
               </details>
-            </div>
-          </section>
+            </section>
+        </div>
 
-          <section id="settings" style="margin-top: 24px;">
-            <h2>Settings</h2>
-            <p>Configure application settings. More options will be added here in the future.</p>
-            <div>
-              <label for="settings-ollama-model">Ollama Model</label>
-              <input id="settings-ollama-model" type="text" value="llama3.1:8b" disabled />
-              <small>Currently locked to llama3.1:8b. More models may be supported later.</small>
-            </div>
-          </section>
+        <div id="details-modal" class="modal" hidden>
+          <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Classification Details</h2>
+            <pre id="modal-json-content"></pre>
+          </div>
+        </div>
+        
+        <div data-page-content="settings" class="container" hidden>
+          <h1>Settings</h1>
+          <p>Configure application settings. More options will be added here in the future.</p>
+          <div style="margin-bottom: 16px;">
+            <label for="settings-ollama-model">Ollama Model</label>
+            <input id="settings-ollama-model" type="text" value="phi3:mini" disabled />
+            <small>Currently locked to phi3:mini. More models may be supported later.</small>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+              <label for="settings-throttle" title="Pause between each PDF classification to reduce CPU load.">
+                  Validation Throttling (seconds):
+              </label>
+              <input type="range" id="settings-throttle" min="0" max="10" value="2" step="1" style="width: 200px;">
+              <span id="settings-throttle-value">2s</span>
+          </div>
         </div>
       </main>
 

@@ -96,9 +96,8 @@
         "abs_path": "data/reports/ms/ms_FY2025_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 2,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 10.0
         }
       },
       {
@@ -106,11 +105,10 @@
         "path": "data/reports/ms/ms_FY2024_Annual_Report.pdf",
         "size_bytes": 2949021,
         "abs_path": "data/reports/ms/ms_FY2024_Annual_Report.pdf",
-        "is_financial": true,
+        "is_financial": false,
         "classification": {
-          "document_type": "Annual Report",
-          "confidence_score": 3,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 10.0
         }
       },
       {
@@ -120,9 +118,8 @@
         "abs_path": "data/reports/ms/ms_FY2023_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 10.0
         }
       },
       {
@@ -132,9 +129,8 @@
         "abs_path": "data/reports/ms/ms_FY2022_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 10.0
         }
       },
       {
@@ -144,9 +140,8 @@
         "abs_path": "data/reports/ms/ms_FY2021_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 9.0
         }
       },
       {
@@ -157,7 +152,7 @@
         "is_financial": false,
         "classification": {
           "document_type": "Proxy Statement",
-          "confidence_score": 10.0
+          "confidence_score": 9.0
         }
       }
     ]
@@ -196,8 +191,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 10,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       }
     ]
@@ -221,11 +215,10 @@
         "path": "data/reports/wbc/wbc_FY2023_Annual_Report.pdf",
         "size_bytes": 12309056,
         "abs_path": "data/reports/wbc/wbc_FY2023_Annual_Report.pdf",
-        "is_financial": false,
+        "is_financial": true,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 2,
-          "source": "heuristic"
+          "document_type": "Annual Report",
+          "confidence_score": 9.0
         }
       },
       {
@@ -248,8 +241,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 5,
-          "source": "heuristic"
+          "confidence_score": 10.0
         }
       },
       {
@@ -272,8 +264,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       }
     ]
@@ -285,11 +276,10 @@
         "path": "data/reports/dbs/dbs_FY2025_Annual_Report.pdf",
         "size_bytes": 108545,
         "abs_path": "data/reports/dbs/dbs_FY2025_Annual_Report.pdf",
-        "is_financial": true,
+        "is_financial": false,
         "classification": {
-          "document_type": "Annual Report",
-          "confidence_score": 5,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 9.0
         }
       }
     ]
@@ -316,8 +306,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -328,8 +317,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 3,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -337,11 +325,10 @@
         "path": "data/reports/wfc/wfc_FY2022_Annual_Report.pdf",
         "size_bytes": 2798802,
         "abs_path": "data/reports/wfc/wfc_FY2022_Annual_Report.pdf",
-        "is_financial": false,
+        "is_financial": true,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Annual Report",
+          "confidence_score": 9.0
         }
       },
       {
@@ -352,8 +339,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 4,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -379,9 +365,8 @@
         "abs_path": "data/reports/bac/bac_FY2025_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 2,
-          "source": "heuristic"
+          "document_type": "Proxy Statement",
+          "confidence_score": 10.0
         }
       },
       {
@@ -392,8 +377,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -404,8 +388,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 4,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -416,8 +399,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -428,8 +410,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 10.0
         }
       },
       {
@@ -440,8 +421,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 10.0
         }
       }
     ]
@@ -455,9 +435,8 @@
         "abs_path": "data/reports/stan/stan_FY2025_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 10.0
         }
       },
       {
@@ -467,9 +446,8 @@
         "abs_path": "data/reports/stan/stan_FY2024_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 9.0
         }
       },
       {
@@ -489,11 +467,10 @@
         "path": "data/reports/stan/stan_FY2021_Annual_Report.pdf",
         "size_bytes": 645955,
         "abs_path": "data/reports/stan/stan_FY2021_Annual_Report.pdf",
-        "is_financial": true,
+        "is_financial": false,
         "classification": {
-          "document_type": "Annual Report",
-          "confidence_score": 3,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 9.0
         }
       },
       {
@@ -501,11 +478,10 @@
         "path": "data/reports/stan/stan_FY2020_Annual_Report.pdf",
         "size_bytes": 407882,
         "abs_path": "data/reports/stan/stan_FY2020_Annual_Report.pdf",
-        "is_financial": true,
+        "is_financial": false,
         "classification": {
-          "document_type": "Annual Report",
-          "confidence_score": 5,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 9.0
         }
       }
     ]
@@ -519,9 +495,8 @@
         "abs_path": "data/reports/hsbc/hsbc_FY2025_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 0,
-          "source": "heuristic"
+          "document_type": "Interim Report",
+          "confidence_score": 9.0
         }
       },
       {
@@ -564,8 +539,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 3,
-          "source": "heuristic"
+          "confidence_score": 8.0
         }
       },
       {
@@ -575,9 +549,8 @@
         "abs_path": "data/reports/san/san_FY2018_Annual_Report.pdf",
         "is_financial": false,
         "classification": {
-          "document_type": "Other",
-          "confidence_score": 2,
-          "source": "heuristic"
+          "document_type": "Press Release",
+          "confidence_score": 9.0
         }
       },
       {
@@ -588,8 +561,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 6,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       },
       {
@@ -600,8 +572,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 4,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       }
     ]
@@ -619,8 +590,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 5,
-          "source": "heuristic"
+          "confidence_score": 9.0
         }
       }
     ]
@@ -635,8 +605,7 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 4,
-          "source": "heuristic"
+          "confidence_score": 8.0
         }
       },
       {
@@ -723,8 +692,8 @@
         "is_financial": true,
         "classification": {
           "document_type": "Annual Report",
-          "confidence_score": 10,
-          "source": "heuristic"
+          "confidence_score": 10.0,
+          "source": "manual_approval"
         }
       }
     ]
