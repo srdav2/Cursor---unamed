@@ -1,25 +1,26 @@
-# OS files
-.DS_Store
-
 # Python
 __pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.egg-info/
-
-# Virtual environments
+*.pyc
 .venv/
-venv/
-
-# Environment vars / secrets
 .env
-.env.*
 
-# Data outputs (keep folder, ignore contents)
-data/*
-!data/.gitkeep
+# OS
+.DS_Store
 
+# Data and cache
+/data/
+*.db
+
+<<<<<<< Current (Your changes)
+<<<<<<< Current (Your changes)
 # SQLite databases
 *.sqlite
 *.db
+=======
+# Streamlit
+.streamlit/
+>>>>>>> Incoming (Background Agent changes)
+=======
+# Streamlit
+.streamlit/
+>>>>>>> Incoming (Background Agent changes)

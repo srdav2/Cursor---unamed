@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Financial Analysis App</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="app" data-sidebar-collapsed="false" data-sidebar-open="false">
+    <header class="app-header">
+      <button
+        id="hamburgerButton"
+        class="icon-button mobile-only"
+        aria-label="Open navigation"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="app-brand" aria-label="Application name">FinSight</div>
+      <div class="header-actions">
+        <button
+          id="collapseToggleButton"
+          class="icon-button desktop-only"
+          aria-label="Collapse navigation"
+          aria-controls="sidebar"
+          aria-expanded="true"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside id="sidebar" class="sidebar" role="navigation" aria-label="Primary">
+        <div class="sidebar-scroll">
+          <ul class="menu" role="list">
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Dashboard" aria-current="page">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 10.5l9-7 9 7V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" fill="currentColor"/></svg>
+                </span>
+                <span class="label">Dashboard</span>
+                <span class="tooltip" role="tooltip">Dashboard</span>
+              </a>
+            </li>
+
+            <li class="has-children">
+              <button
+                class="menu-item submenu-toggle"
+                aria-expanded="false"
+                aria-controls="company-submenu"
+                aria-label="Company Analysis"
+              >
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="label">Company Analysis</span>
+                <span class="chevron" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="tooltip" role="tooltip">Company Analysis</span>
+              </button>
+              <ul id="company-submenu" class="submenu" role="list" hidden>
+                <li>
+                  <a href="#" class="menu-item menu-link" aria-label="Key Metrics">
+                    <span class="bullet" aria-hidden="true"></span>
+                    <span class="label">Key Metrics</span>
+                    <span class="tooltip" role="tooltip">Key Metrics</span>
+                  </a>
+                </li>
+                <li class="has-children">
+                  <button
+                    class="menu-item submenu-toggle"
+                    aria-expanded="false"
+                    aria-controls="fs-submenu"
+                    aria-label="Financial Statements"
+                  >
+                    <span class="bullet" aria-hidden="true"></span>
+                    <span class="label">Financial Statements</span>
+                    <span class="chevron" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span class="tooltip" role="tooltip">Financial Statements</span>
+                  </button>
+                  <ul id="fs-submenu" class="submenu" role="list" hidden>
+                    <li>
+                      <a href="#" class="menu-item menu-link" aria-label="Income Statement">
+                        <span class="dash" aria-hidden="true"></span>
+                        <span class="label">Income Statement</span>
+                        <span class="tooltip" role="tooltip">Income Statement</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" class="menu-item menu-link" aria-label="Balance Sheet">
+                        <span class="dash" aria-hidden="true"></span>
+                        <span class="label">Balance Sheet</span>
+                        <span class="tooltip" role="tooltip">Balance Sheet</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" class="menu-item menu-link" aria-label="Cash Flow Statement">
+                        <span class="dash" aria-hidden="true"></span>
+                        <span class="label">Cash Flow Statement</span>
+                        <span class="tooltip" role="tooltip">Cash Flow Statement</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="menu-item menu-link" aria-label="Ratio Analysis">
+                    <span class="bullet" aria-hidden="true"></span>
+                    <span class="label">Ratio Analysis</span>
+                    <span class="tooltip" role="tooltip">Ratio Analysis</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Custom Analysis">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 19h16M6 17V7m4 10V5m4 12v-6m4 6V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="label">Custom Analysis</span>
+                <span class="tooltip" role="tooltip">Custom Analysis</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Report Viewer">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 2h7l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 2v6h6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 13h8M8 17h8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                </span>
+                <span class="label">Report Viewer</span>
+                <span class="tooltip" role="tooltip">Report Viewer</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Search">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="label">Search</span>
+                <span class="tooltip" role="tooltip">Search</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="flex-spacer" aria-hidden="true"></div>
+
+          <ul class="menu utility" role="list">
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Settings">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="label">Settings</span>
+                <span class="tooltip" role="tooltip">Settings</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="menu-item menu-link" aria-label="Help and Support">
+                <span class="icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24"><path d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 2-3 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+                </span>
+                <span class="label">Help / Support</span>
+                <span class="tooltip" role="tooltip">Help / Support</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <main id="main" class="main-content" tabindex="-1">
+        <div class="container">
+          <h1>Dashboard</h1>
+          <p>
+            Welcome to FinSight. Use the navigation to explore analyses and reports.
+          </p>
+        </div>
+      </main>
+
+      <div id="backdrop" class="backdrop" hidden></div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
+
+
