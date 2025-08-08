@@ -4,3 +4,5 @@ beautifulsoup4
 pdfplumber
 pandas
 Pillow
+rapidfuzz
+Unidecode

@@ -15,6 +15,8 @@ from urllib.parse import urljoin
 # pdfplumber is required for PDF parsing and rendering
 import pdfplumber
 import pandas as pd
+from rapidfuzz import fuzz, process as rf_process
+from unidecode import unidecode
 
 
 logging.basicConfig(
@@ -254,6 +256,62 @@ def find_value_near_phrase(words: List[Dict[str, Any]], match_span: Tuple[int, i
     return None
 
 
+def normalize_label(text: str) -> str:
+    # Lowercase, remove accents, condense spaces and punctuation to spaces
+    t = unidecode(text).lower()
+    t = re.sub(r"[^a-z0-9%\-\s]", " ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
+
+def fuzzy_label_match(label: str, candidates: List[str]) -> Tuple[Optional[str], int]:
+    """Return best-matching candidate and score (0-100)."""
+    norm_label = normalize_label(label)
+    norm_candidates = [normalize_label(c) for c in candidates]
+    if not norm_label or not norm_candidates:
+        return None, 0
+    # Use token sort ratio to be resilient to word order
+    best = rf_process.extractOne(norm_label, norm_candidates, scorer=fuzz.token_sort_ratio)
+    if best is None:
+        return None, 0
+    match_text, score, idx = best
+    return candidates[idx], int(score)
+
+
+def detect_units_near(page: pdfplumber.page.Page, box: Dict[str, Any]) -> Optional[str]:
+    """Search above the term for a units hint like '$m', 'million', 'bn', '%'."""
+    top = float(box.get("top", box.get("y0", 0)))
+    left = max(0.0, float(box.get("x0", 0)) - 150)
+    right = min(page.width, float(box.get("x1", page.width)) + 150)
+    band_top = max(0.0, top - 60)
+    cropped = page.crop((left, band_top, right, top))
+    text = (cropped.extract_text() or "").lower()
+    if not text:
+        return None
+    # Common unit cues
+    if re.search(r"\b(thousands|000s)\b", text):
+        return "thousands"
+    if re.search(r"\b(million|\$m|aud m|aud million|in millions)\b", text):
+        return "millions"
+    if re.search(r"\b(billion|\$bn|aud bn|aud billion|in billions)\b", text):
+        return "billions"
+    if "%" in text:
+        return "%"
+    return None
+
+
+def normalize_value_by_units(value: float, units: Optional[str]) -> float:
+    if not units:
+        return value
+    if units == "thousands":
+        return value * 1_000
+    if units == "millions":
+        return value * 1_000_000
+    if units == "billions":
+        return value * 1_000_000_000
+    return value
+
+
 def extract_kpis_from_pdf(pdf_path: str) -> Dict[str, Any]:
     """
     Extract a small set of KPIs and their approximate coordinates from the PDF.
@@ -408,11 +466,29 @@ def extract_financial_data(pdf_path: Path, schema: List[Dict[str, Any]], bank: O
                     if not match:
                         continue
 
-                    # Bounding boxes for the term on page
+                    # Bounding boxes for the term on page (exact search)
                     term_hits = page.search(term, case=False) or []
                     if not term_hits:
-                        continue
-                    term_box = term_hits[0]
+                        # Fuzzy search: scan all extracted words and pick the best fuzzy match
+                        words = page.extract_words(use_text_flow=True) or []
+                        if not words:
+                            continue
+                        label_texts = [w.get("text", "") for w in words]
+                        best_label, score = fuzzy_label_match(term, label_texts)
+                        if not best_label or score < 80:  # threshold to avoid spurious hits
+                            continue
+                        # Find bbox of the first word occurrence matching best_label
+                        idx = next((i for i, w in enumerate(words) if w.get("text", "") == best_label), -1)
+                        if idx == -1:
+                            continue
+                        term_box = {
+                            "x0": words[idx]["x0"],
+                            "top": words[idx]["top"],
+                            "x1": words[idx]["x1"],
+                            "bottom": words[idx]["bottom"],
+                        }
+                    else:
+                        term_box = term_hits[0]
 
                     # Use a horizontal band around the term to search for numeric values
                     band_top = float(term_box.get("top", term_box.get("y0", 0))) - 5
@@ -430,6 +506,9 @@ def extract_financial_data(pdf_path: Path, schema: List[Dict[str, Any]], bank: O
                     value_float = _clean_number_string(value_str)
                     if value_float is None:
                         continue
+
+                    units = detect_units_near(page, term_box)
+                    value_float = normalize_value_by_units(value_float, units)
 
                     # Create the QC snippet image
                     snippet_path = create_qc_snippet(
