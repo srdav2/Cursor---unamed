@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from pathlib import Path
 
@@ -128,6 +128,23 @@ def api_index_reject():
         return jsonify({"error": "failed to delete"}), 500
     update_index()
     return jsonify({"ok": True})
+
+
+@app.route('/api/file')
+def api_file():
+    """Serve a stored PDF by bank/year so the browser can open it, even when the UI runs from file://"""
+    bank = (request.args.get('bank') or '').lower().strip()
+    year = str(request.args.get('year') or '').strip()
+    if not bank or not year:
+        return jsonify({"error": "bank and year required"}), 400
+    idx = update_index()
+    entry = next((r for r in idx.get(bank, {}).get('reports', []) if r['year'] == year), None)
+    if not entry:
+        return jsonify({"error": "entry not found"}), 404
+    try:
+        return send_file(entry['abs_path'], as_attachment=False)
+    except Exception as exc:
+        return jsonify({"error": f"failed to open file: {exc}"}), 500
 
 
 @app.route('/api/collect_from_urls', methods=['POST'])

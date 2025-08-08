@@ -337,9 +337,11 @@
           const openBtn = document.createElement('a');
           // Build a file:// URL using absolute path when running off file://
           const isFileCtx = location.protocol === 'file:' || location.origin === 'null';
-          const abs = entry.abs_path || entry.path;
-          const href = isFileCtx && abs ? `file://${encodeURI(abs)}` : entry.path;
-          openBtn.href = href;
+          if (isFileCtx) {
+            openBtn.href = `${backend.base}/api/file?bank=${encodeURIComponent(bank)}&year=${encodeURIComponent(year)}`;
+          } else {
+            openBtn.href = entry.path;
+          }
           openBtn.target = '_blank';
           openBtn.rel = 'noopener';
           openBtn.title = 'Open file';
