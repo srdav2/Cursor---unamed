@@ -3,15 +3,18 @@ import json
 import logging
 import os
 import re
+import sys
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-# pdfplumber is required for PDF parsing
+# pdfplumber is required for PDF parsing and rendering
 import pdfplumber
+import pandas as pd
 
 
 logging.basicConfig(
@@ -32,6 +35,46 @@ BANK_SITES: Dict[str, List[str]] = {
         "https://www.nab.com.au/about-us/company/investor-centre/annual-reports",
     ],
 }
+
+
+# Our Standardized Schema for Key Metrics
+# This will be expanded over time.
+FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
+    {
+        "standard_name": "net_interest_income",
+        "search_terms": ["Net interest income", "Interest income, net"],
+    },
+    {
+        "standard_name": "operating_income",
+        "search_terms": ["Operating income", "Total operating income"],
+    },
+    {
+        "standard_name": "loan_impairment_expense",
+        "search_terms": ["Loan impairment expense", "Provision for credit losses"],
+    },
+    {
+        "standard_name": "net_profit_after_tax",
+        "search_terms": [
+            "Net profit after tax",
+            "Profit for the year attributable to equity holders",
+        ],
+    },
+    {
+        "standard_name": "total_assets",
+        "search_terms": ["Total assets"],
+    },
+    {
+        "standard_name": "total_liabilities",
+        "search_terms": ["Total liabilities"],
+    },
+    {
+        "standard_name": "net_cash_from_operating",
+        "search_terms": [
+            "Net cash from operating activities",
+            "Net cash provided by operating activities",
+        ],
+    },
+]
 
 
 def ensure_directory(directory_path: str) -> None:
@@ -279,6 +322,161 @@ def extract_kpis_from_pdf(pdf_path: str) -> Dict[str, Any]:
     return results
 
 
+def _clean_number_string(value_str: str) -> Optional[float]:
+    s = value_str.strip()
+    # Convert accounting negatives (parentheses) to minus sign
+    s = s.replace(",", "").replace("\u2212", "-")
+    if s.startswith("(") and s.endswith(")"):
+        s = "-" + s[1:-1]
+    # Remove currency symbols and percentage if present for numeric parsing
+    s = re.sub(r"[$%]", "", s)
+    try:
+        return float(s)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def create_qc_snippet(page: pdfplumber.page.Page, search_term: str, value_str: str, report_name: str, metric_name: str) -> Path:
+    """
+    Creates and saves a visual snippet of the data point from the PDF page
+    for the Quality Control feature.
+    """
+    snippets_dir = Path("backend/qc_snippets")
+    snippets_dir.mkdir(parents=True, exist_ok=True)
+
+    term_hits = page.search(search_term, case=False) or []
+    value_hits = page.search(value_str, case=False) or []
+
+    # Fallback to using the first hit if available
+    if not term_hits or not value_hits:
+        # Create a full-width narrow crop around the term line if possible
+        try:
+            if term_hits:
+                t = term_hits[0]
+                top = float(t.get("top", t.get("y0", 0))) - 20
+                bottom = float(t.get("bottom", t.get("y1", 0))) + 20
+            else:
+                top = 0
+                bottom = min(200, page.height)
+            crop_box = (0, max(0, top), page.width, min(page.height, bottom))
+            img = page.to_image(resolution=200)
+            img.crop(crop_box)
+            snippet_filename = f"{report_name}_{metric_name}.png"
+            snippet_path = snippets_dir / snippet_filename
+            img.save(snippet_path, format="PNG")
+            return snippet_path
+        except Exception:  # noqa: BLE001
+            # If rendering fails, just return a placeholder path
+            return snippets_dir / f"{report_name}_{metric_name}.png"
+
+    term_box = term_hits[0]
+    value_box = value_hits[0]
+
+    img = page.to_image(resolution=200)
+
+    # Highlight the term in blue and the value in red
+    img.draw_rect(term_box, fill=(0, 0, 255, 50), stroke=None)
+    img.draw_rect(value_box, fill=(255, 0, 0, 50), stroke=None)
+
+    crop_box = (
+        min(term_box.get("x0", 0), value_box.get("x0", 0)) - 20,
+        min(term_box.get("top", term_box.get("y0", 0)), value_box.get("top", value_box.get("y0", 0))) - 20,
+        max(term_box.get("x1", page.width), value_box.get("x1", page.width)) + 20,
+        max(term_box.get("bottom", term_box.get("y1", page.height)), value_box.get("bottom", value_box.get("y1", page.height))) + 20,
+    )
+    img.crop(crop_box)
+
+    snippet_filename = f"{report_name}_{metric_name}.png"
+    snippet_path = snippets_dir / snippet_filename
+    img.save(snippet_path, format="PNG")
+    return snippet_path
+
+
+def extract_financial_data(pdf_path: Path, schema: List[Dict[str, Any]], bank: Optional[str] = None, year: Optional[int] = None) -> List[Dict[str, Any]]:
+    """
+    Parses a PDF file to extract financial data based on a given schema.
+
+    Returns a list of dictionaries, where each dictionary contains the extracted
+    data point and its metadata for the QC feature.
+    """
+    extracted_data: List[Dict[str, Any]] = []
+    print(f"Processing PDF: {pdf_path.name}")
+
+    with pdfplumber.open(str(pdf_path)) as pdf:
+        for metric in schema:
+            print(f"  Searching for metric: {metric['standard_name']}")
+            found_metric = False
+            for page_num, page in enumerate(pdf.pages):
+                if found_metric:
+                    break
+
+                # Extract to warm up internal structures; might be useful for future enhancements
+                _ = page.extract_tables()
+                page_text = page.extract_text() or ""
+
+                for term in metric["search_terms"]:
+                    # Find the term as a whole phrase, ignoring case
+                    match = re.search(r"\b" + re.escape(term) + r"\b", page_text, re.IGNORECASE)
+                    if not match:
+                        continue
+
+                    # Bounding boxes for the term on page
+                    term_hits = page.search(term, case=False) or []
+                    if not term_hits:
+                        continue
+                    term_box = term_hits[0]
+
+                    # Use a horizontal band around the term to search for numeric values
+                    band_top = float(term_box.get("top", term_box.get("y0", 0))) - 5
+                    band_bottom = float(term_box.get("bottom", term_box.get("y1", 0))) + 5
+                    cropped = page.crop((0, max(0, band_top), page.width, min(page.height, band_bottom)))
+                    line_text = cropped.extract_text() or ""
+
+                    # Find numbers: handles commas, parentheses for negatives, decimals
+                    number_matches = re.findall(r"\(?[\$\d,]+\)?\.?\d*%?", line_text)
+                    number_matches = [n for n in number_matches if re.search(r"\d", n)]
+                    if not number_matches:
+                        continue
+
+                    value_str = number_matches[0].strip()
+                    value_float = _clean_number_string(value_str)
+                    if value_float is None:
+                        continue
+
+                    # Create the QC snippet image
+                    snippet_path = create_qc_snippet(
+                        page=page,
+                        search_term=term,
+                        value_str=value_str,
+                        report_name=pdf_path.stem,
+                        metric_name=metric["standard_name"],
+                    )
+
+                    data_point: Dict[str, Any] = {
+                        "bank_name": bank,
+                        "report_year": year,
+                        "metric_name": metric["standard_name"],
+                        "value": value_float,
+                        "source_page": page_num + 1,  # 1-based page numbering
+                        "source_term_used": term,
+                        "source_coordinates": {
+                            "term_bbox": {
+                                "x0": float(term_box.get("x0", 0)),
+                                "top": float(term_box.get("top", term_box.get("y0", 0))),
+                                "x1": float(term_box.get("x1", 0)),
+                                "bottom": float(term_box.get("bottom", term_box.get("y1", 0))),
+                            }
+                        },
+                        "snippet_path": str(snippet_path),
+                        "is_validated": False,
+                    }
+                    extracted_data.append(data_point)
+                    print(f"    -> Found: {metric['standard_name']} = {value_float}")
+                    found_metric = True
+                    break
+    return extracted_data
+
+
 def run_scraper(
     bank: Optional[str] = None,
     year: Optional[int] = None,
@@ -349,6 +547,57 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # If no CLI args are provided, run demo mode per schema-based extraction brief
+    if len(sys.argv) == 1:
+        reports_dir = Path("backend/reports")
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        preferred = reports_dir / "cba_2024_report.pdf"
+        chosen_pdf: Optional[Path] = None
+        bank_guess: Optional[str] = None
+        year_guess: Optional[int] = None
+
+        if preferred.exists():
+            chosen_pdf = preferred
+            bank_guess = "cba"
+            year_guess = 2024
+        else:
+            # Fallback: use first existing PDF in data/downloads for a demo run
+            downloads_dir = Path("data/downloads")
+            pdfs = sorted(downloads_dir.glob("*.pdf")) if downloads_dir.exists() else []
+            if pdfs:
+                chosen_pdf = pdfs[0]
+                # naive guesses from filename
+                name = chosen_pdf.stem.lower()
+                if "cba" in name:
+                    bank_guess = "cba"
+                elif "nab" in name:
+                    bank_guess = "nab"
+                match_year = re.search(r"(20\d{2})", name)
+                if match_year:
+                    year_guess = int(match_year.group(1))
+
+        if not chosen_pdf:
+            print("Error: Please download the CBA 2024 Annual Report,")
+            print("rename it to 'cba_2024_report.pdf', and place it in the")
+            print("'backend/reports' directory.")
+            sys.exit(1)
+
+        data = extract_financial_data(chosen_pdf, FINANCIAL_SCHEMA, bank=bank_guess, year=year_guess)
+        df = pd.DataFrame(data)
+
+        print("\n--- Extraction Complete (Schema Mode) ---")
+        if not df.empty:
+            print(df.to_string(index=False))
+        else:
+            print("No metrics found using current schema.")
+
+        output_csv_path = Path("backend/extracted_data.csv")
+        if not df.empty:
+            df.to_csv(output_csv_path, index=False)
+            print(f"\nData saved to {output_csv_path}")
+    else:
+        # Run the original CLI for discovery/downloading + basic KPI extraction
+        main()
 
 
