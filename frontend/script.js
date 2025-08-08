@@ -328,6 +328,52 @@
           return td;
         }
 
+        function actionCell(bank, year, entry){
+          const td = document.createElement('td');
+          td.style.border = '1px solid #e0e0e0';
+          td.style.textAlign = 'center';
+          td.style.padding = '4px 6px';
+          if (!entry) { td.textContent = ''; return td; }
+          const openBtn = document.createElement('a');
+          openBtn.href = entry.path;
+          openBtn.title = 'Open file';
+          openBtn.textContent = '📄';
+          openBtn.style.marginRight = '8px';
+
+          const approveBtn = document.createElement('button');
+          approveBtn.textContent = '✓';
+          approveBtn.title = 'Approve as annual report';
+          approveBtn.style.marginRight = '6px';
+          approveBtn.addEventListener('click', async () => {
+            try {
+              await fetchJSON(`${backend.base}/api/index/approve`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bank, year })
+              });
+              await refreshIndex();
+            } catch (e) { alert('Approve failed'); }
+          });
+
+          const rejectBtn = document.createElement('button');
+          rejectBtn.textContent = '×';
+          rejectBtn.title = 'Wrong document (delete)';
+          rejectBtn.addEventListener('click', async () => {
+            if (!confirm(`Delete ${entry.path}?`)) return;
+            try {
+              await fetchJSON(`${backend.base}/api/index/reject`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bank, year })
+              });
+              await refreshIndex();
+            } catch (e) { alert('Delete failed'); }
+          });
+
+          td.appendChild(openBtn);
+          td.appendChild(approveBtn);
+          td.appendChild(rejectBtn);
+          return td;
+        }
+
         banks.forEach(b => {
           const tr = document.createElement('tr');
           const name = document.createElement('td');
@@ -338,10 +384,14 @@
           tr.appendChild(name);
           years.forEach(y => {
             const hit = (idx[b]?.reports || []).find(r => parseInt(r.year,10) === y);
-            if (!hit) tr.appendChild(cell('×', false));
-            else {
+            if (!hit) {
+              const td = document.createElement('td');
+              td.colSpan = 2; td.textContent = '×'; td.style.color = '#b00020'; td.style.border='1px solid #e0e0e0'; td.style.textAlign='center';
+              tr.appendChild(td);
+            } else {
               const downloaded = !!(hit.size_bytes && hit.size_bytes > 0);
-              tr.appendChild(cell(downloaded ? '✓' : '×', downloaded));
+              tr.appendChild(cell(downloaded ? (hit.is_financial ? '✓' : '⚠︎') : '×', downloaded));
+              tr.appendChild(actionCell(b, y, hit));
             }
           });
           tbody.appendChild(tr);

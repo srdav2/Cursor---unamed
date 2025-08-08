@@ -230,39 +230,58 @@ def _read_pdf_text_head(pdf_path: str, max_pages: int = 10) -> str:
         return ""
 
 
-def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> bool:
+def compute_financial_report_score(pdf_path: str, bank: Optional[str], year: Optional[int]) -> int:
+    """Heuristic scoring; higher is better for annual financial statements."""
     text = _read_pdf_text_head(pdf_path, max_pages=8).lower()
     if not text:
-        return False
+        return 0
 
-    signals = 0
-    # 1) Generic annual-report signals
-    if any(k in text for k in [
+    score = 0
+    # Positive signals
+    positives = [
         "annual report", "annual report and accounts", "annual review", "form 10-k",
-        "consolidated financial statements", "financial statements", "statement of financial position",
-        "income statement", "statement of comprehensive income", "statement of cash flows",
-        "independent auditor", "auditor's report"
-    ]):
-        signals += 1
+        "consolidated financial statements", "financial statements",
+        "statement of financial position", "balance sheet",
+        "income statement", "statement of comprehensive income",
+        "statement of cash flows", "cash flow statement",
+        "independent auditor", "auditor's report", "for the year ended",
+    ]
+    score += sum(2 for k in positives if k in text)
 
-    # 2) Bank name/token hint
+    # Bank name/token
     if bank and bank.lower() in BANK_REGISTRY:
         name = (BANK_REGISTRY[bank.lower()].get("name") or "").lower()
         code = bank.lower()
-        if name and name.split(" ")[0] in text:
-            signals += 1
+        if name:
+            first_token = name.split(" ")[0]
+            if first_token in text:
+                score += 1
+            if name in text:
+                score += 1
         if code in text:
-            signals += 1
+            score += 1
 
-    # 3) Year hint
-    if year and (str(year) in text or f"fy{str(year)[-2:]}" in text):
-        signals += 1
+    # Year hints
+    if year and (str(year) in text or f"fy{str(year)[-2:]}" in text or f"{year} annual" in text):
+        score += 2
 
-    # 4) Regulator hints for 10-K style
+    # SEC hints for US
     if "securities and exchange commission" in text or "washington, d.c." in text:
-        signals += 1
+        score += 2
 
-    return signals >= 2
+    # Negative signals (interim/quarterly/presentation)
+    negatives = [
+        "interim", "quarter", "q1", "q2", "q3", "q4", "half-year", "half year",
+        "trading update", "presentation", "investor presentation", "press release", "pillar 3",
+        "sustainability report", "csr report", "proxy statement", "circular", "md&a", "factbook"
+    ]
+    score -= sum(2 for k in negatives if k in text)
+
+    return max(score, 0)
+
+
+def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> bool:
+    return compute_financial_report_score(pdf_path, bank, year) >= 3
 
 
 def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[str]:
@@ -330,10 +349,16 @@ def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, Lis
                     continue
             except Exception:
                 continue
+            # validate
+            is_fin = is_likely_financial_report(abs_path, bank, int(year))
+            score = compute_financial_report_score(abs_path, bank, int(year))
             entries.append({
                 "year": year,
                 "path": file_path,
                 "size_bytes": size,
+                "abs_path": abs_path,
+                "is_financial": is_fin,
+                "score": score
             })
         entries.sort(key=lambda e: e["year"], reverse=True)
         index[bank] = {"reports": entries}

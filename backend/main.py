@@ -81,6 +81,55 @@ def api_index():
     return jsonify(idx)
 
 
+@app.route('/api/index/approve', methods=['POST'])
+def api_index_approve():
+    body = request.get_json(silent=True) or {}
+    bank = (body.get('bank') or '').lower().strip()
+    year = str(body.get('year') or '').strip()
+    if not bank or not year:
+        return jsonify({"error": "bank and year required"}), 400
+    # create approval file marker next to PDF
+    from collector import update_index
+    idx = update_index()
+    entry = next((r for r in idx.get(bank, {}).get('reports', []) if r['year'] == year), None)
+    if not entry:
+        return jsonify({"error": "entry not found"}), 404
+    marker = entry['abs_path'] + '.approved'
+    import os
+    try:
+        with open(marker, 'w') as f:
+            f.write('approved')
+    except OSError:
+        return jsonify({"error": "failed to write approval"}), 500
+    return jsonify({"ok": True})
+
+
+@app.route('/api/index/reject', methods=['POST'])
+def api_index_reject():
+    body = request.get_json(silent=True) or {}
+    bank = (body.get('bank') or '').lower().strip()
+    year = str(body.get('year') or '').strip()
+    if not bank or not year:
+        return jsonify({"error": "bank and year required"}), 400
+    from collector import update_index
+    idx = update_index()
+    entry = next((r for r in idx.get(bank, {}).get('reports', []) if r['year'] == year), None)
+    if not entry:
+        return jsonify({"error": "entry not found"}), 404
+    # remove the file
+    import os
+    try:
+        if os.path.exists(entry['abs_path']):
+            os.remove(entry['abs_path'])
+        # remove marker if exists
+        if os.path.exists(entry['abs_path'] + '.approved'):
+            os.remove(entry['abs_path'] + '.approved')
+    except OSError:
+        return jsonify({"error": "failed to delete"}), 500
+    update_index()
+    return jsonify({"ok": True})
+
+
 @app.route('/api/collect_from_urls', methods=['POST'])
 def api_collect_from_urls():
     """
