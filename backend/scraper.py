@@ -45,14 +45,17 @@ FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
     {
         "standard_name": "net_interest_income",
         "search_terms": ["Net interest income", "Interest income, net"],
+        "value_kind": "amount",
     },
     {
         "standard_name": "operating_income",
         "search_terms": ["Operating income", "Total operating income"],
+        "value_kind": "amount",
     },
     {
         "standard_name": "loan_impairment_expense",
         "search_terms": ["Loan impairment expense", "Provision for credit losses"],
+        "value_kind": "amount",
     },
     {
         "standard_name": "net_profit_after_tax",
@@ -60,14 +63,17 @@ FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
             "Net profit after tax",
             "Profit for the year attributable to equity holders",
         ],
+        "value_kind": "amount",
     },
     {
         "standard_name": "total_assets",
         "search_terms": ["Total assets"],
+        "value_kind": "amount",
     },
     {
         "standard_name": "total_liabilities",
         "search_terms": ["Total liabilities"],
+        "value_kind": "amount",
     },
     {
         "standard_name": "net_cash_from_operating",
@@ -75,8 +81,70 @@ FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
             "Net cash from operating activities",
             "Net cash provided by operating activities",
         ],
+        "value_kind": "amount",
     },
 ]
+
+
+# Bank registry: metadata for geography, continent, and reporting currency
+BANK_REGISTRY: Dict[str, Dict[str, Any]] = {
+    # Australia
+    "cba": {"name": "Commonwealth Bank of Australia", "country": "Australia", "continent": "Oceania", "reporting_currency": "AUD"},
+    "nab": {"name": "National Australia Bank Limited", "country": "Australia", "continent": "Oceania", "reporting_currency": "AUD"},
+    "wbc": {"name": "Westpac Banking Corporation", "country": "Australia", "continent": "Oceania", "reporting_currency": "AUD"},
+    "anz": {"name": "Australia and New Zealand Banking Group Limited", "country": "Australia", "continent": "Oceania", "reporting_currency": "AUD"},
+    "mqg": {"name": "Macquarie Group Limited", "country": "Australia", "continent": "Oceania", "reporting_currency": "AUD"},
+
+    # Canada
+    "rbc": {"name": "Royal Bank of Canada", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+    "td": {"name": "Toronto-Dominion Bank", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+    "bns": {"name": "The Bank of Nova Scotia", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+    "bmo": {"name": "Bank of Montreal", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+    "cm": {"name": "Canadian Imperial Bank of Commerce", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+    "nbc": {"name": "National Bank of Canada", "country": "Canada", "continent": "North America", "reporting_currency": "CAD"},
+
+    # United States
+    "jpm": {"name": "JPMorgan Chase & Co.", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+    "bac": {"name": "Bank of America Corporation", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+    "wfc": {"name": "Wells Fargo & Company", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+    "c": {"name": "Citigroup Inc.", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+    "gs": {"name": "The Goldman Sachs Group, Inc.", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+    "ms": {"name": "Morgan Stanley", "country": "United States", "continent": "North America", "reporting_currency": "USD"},
+
+    # United Kingdom
+    "hsbc": {"name": "HSBC Holdings plc", "country": "United Kingdom", "continent": "Europe", "reporting_currency": "USD"},
+    "barc": {"name": "Barclays PLC", "country": "United Kingdom", "continent": "Europe", "reporting_currency": "GBP"},
+    "lloy": {"name": "Lloyds Banking Group plc", "country": "United Kingdom", "continent": "Europe", "reporting_currency": "GBP"},
+    "nwg": {"name": "NatWest Group plc", "country": "United Kingdom", "continent": "Europe", "reporting_currency": "GBP"},
+    "stan": {"name": "Standard Chartered PLC", "country": "United Kingdom", "continent": "Europe", "reporting_currency": "USD"},
+
+    # Eurozone
+    "bnpp": {"name": "BNP Paribas", "country": "France", "continent": "Europe", "reporting_currency": "EUR"},
+    "aca": {"name": "Crédit Agricole", "country": "France", "continent": "Europe", "reporting_currency": "EUR"},
+    "san": {"name": "Banco Santander, S.A.", "country": "Spain", "continent": "Europe", "reporting_currency": "EUR"},
+    "ing": {"name": "ING Groep N.V.", "country": "Netherlands", "continent": "Europe", "reporting_currency": "EUR"},
+    "dbk": {"name": "Deutsche Bank AG", "country": "Germany", "continent": "Europe", "reporting_currency": "EUR"},
+    "isp": {"name": "Intesa Sanpaolo S.p.A.", "country": "Italy", "continent": "Europe", "reporting_currency": "EUR"},
+
+    # Switzerland
+    "ubs": {"name": "UBS Group AG", "country": "Switzerland", "continent": "Europe", "reporting_currency": "USD"},
+
+    # Japan
+    "mufg": {"name": "Mitsubishi UFJ Financial Group, Inc.", "country": "Japan", "continent": "Asia", "reporting_currency": "JPY"},
+    "smfg": {"name": "Sumitomo Mitsui Financial Group, Inc.", "country": "Japan", "continent": "Asia", "reporting_currency": "JPY"},
+    "mizuho": {"name": "Mizuho Financial Group, Inc.", "country": "Japan", "continent": "Asia", "reporting_currency": "JPY"},
+
+    # China
+    "icbc": {"name": "Industrial and Commercial Bank of China", "country": "China", "continent": "Asia", "reporting_currency": "CNY"},
+    "ccb": {"name": "China Construction Bank Corporation", "country": "China", "continent": "Asia", "reporting_currency": "CNY"},
+    "abc": {"name": "Agricultural Bank of China", "country": "China", "continent": "Asia", "reporting_currency": "CNY"},
+    "boc": {"name": "Bank of China", "country": "China", "continent": "Asia", "reporting_currency": "CNY"},
+
+    # Singapore
+    "dbs": {"name": "DBS Group Holdings Ltd", "country": "Singapore", "continent": "Asia", "reporting_currency": "SGD"},
+    "ocbc": {"name": "Oversea-Chinese Banking Corporation Limited", "country": "Singapore", "continent": "Asia", "reporting_currency": "SGD"},
+    "uob": {"name": "United Overseas Bank Limited", "country": "Singapore", "continent": "Asia", "reporting_currency": "SGD"},
+}
 
 
 def ensure_directory(directory_path: str) -> None:
@@ -394,6 +462,36 @@ def _clean_number_string(value_str: str) -> Optional[float]:
         return None
 
 
+def detect_currency_near(page: pdfplumber.page.Page, box: Dict[str, Any]) -> Optional[str]:
+    """Detect likely currency near a label: $, A$, C$, US$, NZ$, €, £, ¥ and textual cues."""
+    top = float(box.get("top", box.get("y0", 0)))
+    left = max(0.0, float(box.get("x0", 0)) - 200)
+    right = min(page.width, float(box.get("x1", page.width)) + 200)
+    band_top = max(0.0, top - 80)
+    cropped = page.crop((left, band_top, right, top))
+    text = (cropped.extract_text() or "").lower()
+    if not text:
+        return None
+    # Symbol cues
+    if "aud" in text or "a$" in text:
+        return "AUD"
+    if "cad" in text or "c$" in text:
+        return "CAD"
+    if "usd" in text or "us$" in text or "$" in text:
+        return "USD"
+    if "eur" in text or "€" in text:
+        return "EUR"
+    if "gbp" in text or "£" in text:
+        return "GBP"
+    if "jpy" in text or "¥" in text:
+        return "JPY"
+    if "cny" in text or "rmb" in text:
+        return "CNY"
+    if "sgd" in text:
+        return "SGD"
+    return None
+
+
 def create_qc_snippet(page: pdfplumber.page.Page, search_term: str, value_str: str, report_name: str, metric_name: str) -> Path:
     """
     Creates and saves a visual snippet of the data point from the PDF page
@@ -508,7 +606,8 @@ def extract_financial_data(pdf_path: Path, schema: List[Dict[str, Any]], bank: O
                         continue
 
                     units = detect_units_near(page, term_box)
-                    value_float = normalize_value_by_units(value_float, units)
+                    currency = detect_currency_near(page, term_box)
+                    normalized_value = normalize_value_by_units(value_float, units)
 
                     # Create the QC snippet image
                     snippet_path = create_qc_snippet(
@@ -523,7 +622,11 @@ def extract_financial_data(pdf_path: Path, schema: List[Dict[str, Any]], bank: O
                         "bank_name": bank,
                         "report_year": year,
                         "metric_name": metric["standard_name"],
-                        "value": value_float,
+                        "value": normalized_value,
+                        "raw_value": value_str,
+                        "value_units": units,
+                        "value_currency": currency,
+                        "value_kind": metric.get("value_kind", "amount"),
                         "source_page": page_num + 1,  # 1-based page numbering
                         "source_term_used": term,
                         "source_coordinates": {
