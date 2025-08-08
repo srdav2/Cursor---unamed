@@ -338,15 +338,16 @@
     const refreshBtn = document.getElementById('mr-refresh-index');
     const collectSelBtn = document.getElementById('mr-collect-selected');
     const collectAllBtn = document.getElementById('mr-collect-all');
-    // Maintenance helpers (hidden behind debug toggle could be added later)
-    async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed.'); } }
-    async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed.'); } }
+    const cleanupBtn = document.getElementById('mr-cleanup');
+    const migrateBtn = document.getElementById('mr-migrate');
+    async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed. Ensure backend is running.'); } }
+    async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed. Ensure backend is running.'); } }
     if (uploadBtn) uploadBtn.addEventListener('click', uploadReport);
     if (refreshBtn) refreshBtn.addEventListener('click', refreshIndex);
     if (collectSelBtn) collectSelBtn.addEventListener('click', collectSelected);
     if (collectAllBtn) collectAllBtn.addEventListener('click', collectAll);
-    // Expose for console/advanced users
-    window.__MR = { cleanup, migrate };
+    if (cleanupBtn) cleanupBtn.addEventListener('click', cleanup);
+    if (migrateBtn) migrateBtn.addEventListener('click', migrate);
   }
 
   // Initialize panel
