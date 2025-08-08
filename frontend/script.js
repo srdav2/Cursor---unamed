@@ -335,7 +335,13 @@
           td.style.padding = '4px 6px';
           if (!entry) { td.textContent = ''; return td; }
           const openBtn = document.createElement('a');
-          openBtn.href = entry.path;
+          // Build a file:// URL using absolute path when running off file://
+          const isFileCtx = location.protocol === 'file:' || location.origin === 'null';
+          const abs = entry.abs_path || entry.path;
+          const href = isFileCtx && abs ? `file://${encodeURI(abs)}` : entry.path;
+          openBtn.href = href;
+          openBtn.target = '_blank';
+          openBtn.rel = 'noopener';
           openBtn.title = 'Open file';
           openBtn.textContent = '📄';
           openBtn.style.marginRight = '8px';
