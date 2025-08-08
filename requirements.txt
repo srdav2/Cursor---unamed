@@ -3,3 +3,16 @@ beautifulsoup4
 pdfplumber
 pandas
 dash
+<<<<<<< Current (Your changes)
+<<<<<<< Current (Your changes)
+<<<<<<< Current (Your changes)
+=======
+pymupdf
+Pillow
+>>>>>>> Incoming (Background Agent changes)
+=======
+plotly
+>>>>>>> Incoming (Background Agent changes)
+=======
+plotly
+>>>>>>> Incoming (Background Agent changes)
