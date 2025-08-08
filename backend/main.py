@@ -1,10 +1,81 @@
-from flask import Flask
+from flask import Flask, jsonify, request
+from pathlib import Path
+
+from scraper import extract_financial_data, FINANCIAL_SCHEMA
+from collector import collect_bank_reports, collect_all, update_index
 
 app = Flask(__name__)
 
 @app.route('/api/status')
 def status():
     return {"status": "Backend is running!"}
+
+
+@app.route('/api/extract')
+def api_extract():
+    """
+    Extracts schema-based metrics from a PDF.
+    Usage examples:
+    - /api/extract?pdf=data/downloads/NAB_FY24_Annual_Report.pdf&bank=nab&year=2024
+    - /api/extract?pdf=/absolute/path/to/report.pdf
+    """
+    pdf = request.args.get('pdf')
+    bank = request.args.get('bank')
+    year_str = request.args.get('year')
+    year = int(year_str) if year_str and year_str.isdigit() else None
+
+    if not pdf:
+        return jsonify({"error": "Missing required query param 'pdf'"}), 400
+
+    pdf_path = Path(pdf)
+    if not pdf_path.exists():
+        return jsonify({"error": f"PDF not found at {pdf_path}"}), 404
+
+    data = extract_financial_data(pdf_path=pdf_path, schema=FINANCIAL_SCHEMA, bank=bank, year=year)
+    return jsonify({
+        "bank": bank,
+        "year": year,
+        "source_pdf": str(pdf_path),
+        "items": data,
+    })
+
+
+@app.route('/api/collect', methods=['POST'])
+def api_collect():
+    """
+    Trigger download/discovery of up to 6 years of annual reports for a bank.
+    JSON body: { "bank": "nab", "years": 6 }
+    """
+    body = request.get_json(silent=True) or {}
+    bank = (body.get('bank') or '').strip().lower()
+    years = int(body.get('years') or 6)
+    if not bank:
+        return jsonify({"error": "Missing 'bank' in request body"}), 400
+    result = collect_bank_reports(bank, years=years)
+    update_index()
+    return jsonify({"bank": bank, **result})
+
+
+@app.route('/api/collect_all', methods=['POST'])
+def api_collect_all():
+    """
+    Trigger download/discovery for a list of banks.
+    JSON body: { "banks": ["cba","nab",...], "years": 6 }
+    """
+    body = request.get_json(silent=True) or {}
+    banks = body.get('banks') or []
+    years = int(body.get('years') or 6)
+    if not isinstance(banks, list) or not banks:
+        return jsonify({"error": "Provide non-empty 'banks' array in body"}), 400
+    result = collect_all([b.lower() for b in banks], years=years)
+    update_index()
+    return jsonify(result)
+
+
+@app.route('/api/index')
+def api_index():
+    idx = update_index()
+    return jsonify(idx)
 
 if __name__ == '__main__':
     # Runs the server on port 5000
