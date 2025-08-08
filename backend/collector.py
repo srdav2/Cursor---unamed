@@ -23,7 +23,8 @@ def _year_bounds() -> Tuple[int, int]:
 
 # Map bank codes to likely investor relations pages that list annual reports.
 # This list can be expanded over time.
-BANK_SOURCES: Dict[str, List[str]] = {
+# Load bank sources from JSON if available; fallback to built-in defaults
+DEFAULT_BANK_SOURCES: Dict[str, List[str]] = {
     # Australia
     "cba": [
         "https://www.commbank.com.au/about-us/investors/financials/annual-reports.html",
@@ -94,6 +95,17 @@ BANK_SOURCES: Dict[str, List[str]] = {
     "uob": ["https://www.uobgroup.com/investor-relations/financial/annual-reports.page"],
 }
 
+def load_bank_sources() -> Dict[str, List[str]]:
+    path = os.path.join(os.path.dirname(__file__), 'bank_sources.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return {k.lower(): v for k, v in data.items() if isinstance(v, list)}
+    except Exception:
+        pass
+    return DEFAULT_BANK_SOURCES
+
 
 def http_get(url: str, timeout: int = 30) -> requests.Response:
     headers = {
@@ -123,7 +135,8 @@ def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
     """
     Discover candidate (year, pdf_url, label) tuples for a bank from configured sources.
     """
-    sources = BANK_SOURCES.get(bank.lower(), [])
+    sources_map = load_bank_sources()
+    sources = sources_map.get(bank.lower(), [])
     results: List[Tuple[int, str, str]] = []
     for src in sources:
         try:

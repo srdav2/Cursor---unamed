@@ -205,6 +205,8 @@
         opt.textContent = `${b.code.toUpperCase()} – ${b.name} (${b.country})`;
         select.appendChild(opt);
       }
+      // Optionally, we could show source links for transparency
+      window.__BANK_SOURCES = data.sources;
     } catch (e){ /* backend may be offline */ }
   }
 

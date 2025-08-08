@@ -3,7 +3,7 @@ from flask_cors import CORS
 from pathlib import Path
 
 from scraper import extract_financial_data, FINANCIAL_SCHEMA, BANK_REGISTRY
-from collector import collect_bank_reports, collect_all, collect_from_urls, update_index, cleanup_reports, migrate_existing
+from collector import collect_bank_reports, collect_all, collect_from_urls, update_index, cleanup_reports, migrate_existing, load_bank_sources
 
 app = Flask(__name__)
 # Relaxed CORS for file:// origin (shows as Origin: null)
@@ -103,7 +103,8 @@ def api_banks():
     for code, meta in BANK_REGISTRY.items():
         items.append({"code": code, **meta})
     items.sort(key=lambda x: x["code"]) 
-    return jsonify({"banks": items})
+    sources = load_bank_sources()
+    return jsonify({"banks": items, "sources": sources})
 
 
 @app.route('/api/upload', methods=['POST'])
