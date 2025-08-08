@@ -349,24 +349,14 @@ def create_qc_snippet(page: pdfplumber.page.Page, search_term: str, value_str: s
 
     # Fallback to using the first hit if available
     if not term_hits or not value_hits:
-        # Create a full-width narrow crop around the term line if possible
+        # Render full page as a minimal fallback snippet
         try:
-            if term_hits:
-                t = term_hits[0]
-                top = float(t.get("top", t.get("y0", 0))) - 20
-                bottom = float(t.get("bottom", t.get("y1", 0))) + 20
-            else:
-                top = 0
-                bottom = min(200, page.height)
-            crop_box = (0, max(0, top), page.width, min(page.height, bottom))
             img = page.to_image(resolution=200)
-            img.crop(crop_box)
             snippet_filename = f"{report_name}_{metric_name}.png"
             snippet_path = snippets_dir / snippet_filename
             img.save(snippet_path, format="PNG")
             return snippet_path
         except Exception:  # noqa: BLE001
-            # If rendering fails, just return a placeholder path
             return snippets_dir / f"{report_name}_{metric_name}.png"
 
     term_box = term_hits[0]
@@ -384,8 +374,6 @@ def create_qc_snippet(page: pdfplumber.page.Page, search_term: str, value_str: s
         max(term_box.get("x1", page.width), value_box.get("x1", page.width)) + 20,
         max(term_box.get("bottom", term_box.get("y1", page.height)), value_box.get("bottom", value_box.get("y1", page.height))) + 20,
     )
-    img.crop(crop_box)
-
     snippet_filename = f"{report_name}_{metric_name}.png"
     snippet_path = snippets_dir / snippet_filename
     img.save(snippet_path, format="PNG")
