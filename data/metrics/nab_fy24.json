@@ -1,0 +1,617 @@
+{
+  "document_id": "nab_fy24",
+  "metrics": [
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 16757.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 113,
+      "bbox": [
+        342.6789855957031,
+        140.58102416992188,
+        365.75567626953125,
+        150.8397674560547
+      ],
+      "source_text": "Net interest income\n16,757"
+    },
+    {
+      "metric_code": "NIM",
+      "name": "Net interest margin",
+      "value": 1.71,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 113,
+      "bbox": [
+        346.6019592285156,
+        458.2030334472656,
+        361.20343017578125,
+        468.4617919921875
+      ],
+      "source_text": "Net interest margin\n1.71"
+    },
+    {
+      "metric_code": "DEPOSITS",
+      "name": "Customer deposits",
+      "value": 612.8,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 113,
+      "bbox": [
+        346.966064453125,
+        585.7620239257812,
+        365.7580261230469,
+        596.0208129882812
+      ],
+      "source_text": "customer deposits\n612.8"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 732692.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 115,
+      "bbox": [
+        213.76507568359375,
+        316.9668884277344,
+        241.03236389160156,
+        327.22564697265625
+      ],
+      "source_text": "Loans and advances\n732,692"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 1080248.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 115,
+      "bbox": [
+        207.4510040283203,
+        342.4790344238281,
+        241.03305053710938,
+        352.73779296875
+      ],
+      "source_text": "Total assets\n1,080,248"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 180.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 170,
+      "bbox": [
+        268.0779724121094,
+        344.2607727050781,
+        280.6299743652344,
+        355.58074951171875
+      ],
+      "source_text": "Net interest income\n180"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 192.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 170,
+      "bbox": [
+        268.406005859375,
+        551.1318359375,
+        280.6300048828125,
+        562.4518432617188
+      ],
+      "source_text": "Loans and advances\n192"
+    },
+    {
+      "metric_code": "OPEX",
+      "name": "Operating expenses",
+      "value": 182.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 170,
+      "bbox": [
+        268.0779724121094,
+        376.5987854003906,
+        280.6299743652344,
+        387.91876220703125
+      ],
+      "source_text": "Operating expenses\n182"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 3.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 171,
+      "bbox": [
+        133.52099609375,
+        92.55398559570312,
+        137.9217529296875,
+        102.81273651123047
+      ],
+      "source_text": "Net interest income\n3"
+    },
+    {
+      "metric_code": "OPEX",
+      "name": "Operating expenses",
+      "value": 5.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 171,
+      "bbox": [
+        382.3634948730469,
+        130.82119750976562,
+        386.5539855957031,
+        141.07994079589844
+      ],
+      "source_text": "Operating expenses\n5"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 12.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 173,
+      "bbox": [
+        467.4619445800781,
+        169.08895874023438,
+        475.8429260253906,
+        179.3477020263672
+      ],
+      "source_text": "Loans and advances\n12"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 7268.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 181,
+      "bbox": [
+        277.41900634765625,
+        162.41201782226562,
+        296.3052062988281,
+        172.67076110839844
+      ],
+      "source_text": "Net interest income\n7,268"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 7232.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 182,
+      "bbox": [
+        264.8479919433594,
+        155.19900512695312,
+        282.1175537109375,
+        165.45774841308594
+      ],
+      "source_text": "Net interest income\n7,232"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 1036.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 183,
+      "bbox": [
+        371.6712341308594,
+        349.64453125,
+        390.55743408203125,
+        359.9032897949219
+      ],
+      "source_text": "interest income\n1,036"
+    },
+    {
+      "metric_code": "NII",
+      "name": "Net interest income",
+      "value": 58297.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 183,
+      "bbox": [
+        367.4800109863281,
+        451.6910095214844,
+        390.55670166015625,
+        461.94976806640625
+      ],
+      "source_text": "interest income\n58,297"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 43302.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 183,
+      "bbox": [
+        367.4812316894531,
+        324.13250732421875,
+        390.55792236328125,
+        334.3912658691406
+      ],
+      "source_text": "Loans and advances\n43,302"
+    },
+    {
+      "metric_code": "OPEX",
+      "name": "Operating expenses",
+      "value": 10026.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 186,
+      "bbox": [
+        338.42401123046875,
+        526.27001953125,
+        361.5007019042969,
+        536.52880859375
+      ],
+      "source_text": "operating expenses\n10,026"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 737630.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 195,
+      "bbox": [
+        348.406005859375,
+        316.9980163574219,
+        375.6731872558594,
+        327.25677490234375
+      ],
+      "source_text": "loans and advances\n737,630"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 4910.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 217,
+      "bbox": [
+        199.53697204589844,
+        353.467041015625,
+        218.42324829101562,
+        363.7257995605469
+      ],
+      "source_text": "Loans and advances\n4,910"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 4347.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 217,
+      "bbox": [
+        199.53794860839844,
+        481.02606201171875,
+        218.42422485351562,
+        491.2848205566406
+      ],
+      "source_text": "Loans and advances\n4,347"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 144865.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 217,
+      "bbox": [
+        191.15499877929688,
+        366.2230224609375,
+        218.4222869873047,
+        376.4817810058594
+      ],
+      "source_text": "Total assets\n144,865"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 129591.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 217,
+      "bbox": [
+        191.15499877929688,
+        493.7820129394531,
+        218.4222869873047,
+        504.040771484375
+      ],
+      "source_text": "Total assets\n129,591"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 5748.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 218,
+      "bbox": [
+        185.47499084472656,
+        217.82901000976562,
+        202.74447631835938,
+        228.08775329589844
+      ],
+      "source_text": "Loans and advances\n5,748"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 4203.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 218,
+      "bbox": [
+        185.4759979248047,
+        345.3880310058594,
+        202.7454833984375,
+        355.64678955078125
+      ],
+      "source_text": "Loans and advances\n4,203"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 258334.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 218,
+      "bbox": [
+        177.76800537109375,
+        230.58499145507812,
+        202.7369842529297,
+        240.84373474121094
+      ],
+      "source_text": "Total assets\n258,334"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 238715.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 218,
+      "bbox": [
+        177.76800537109375,
+        358.1440124511719,
+        202.7369842529297,
+        368.40277099609375
+      ],
+      "source_text": "Total assets\n238,715"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 571162.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 219,
+      "bbox": [
+        189.66900634765625,
+        335.6200256347656,
+        216.93629455566406,
+        345.8787841796875
+      ],
+      "source_text": "loans \nand advances\n571,162"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 498558.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 220,
+      "bbox": [
+        175.49600219726562,
+        201.97903442382812,
+        202.76329040527344,
+        212.23777770996094
+      ],
+      "source_text": "loans \nand advances\n498,558"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 613248.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 222,
+      "bbox": [
+        220.13795471191406,
+        241.12887573242188,
+        247.40524291992188,
+        251.3876190185547
+      ],
+      "source_text": "Loans and advances\n613,248"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 612805.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 222,
+      "bbox": [
+        220.1399688720703,
+        394.2000427246094,
+        247.40725708007812,
+        404.45880126953125
+      ],
+      "source_text": "Loans and advances\n612,805"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 150969.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 226,
+      "bbox": [
+        175.49697875976562,
+        240.24685668945312,
+        202.76426696777344,
+        250.50559997558594
+      ],
+      "source_text": "Loans and advances\n150,969"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 124015.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 226,
+      "bbox": [
+        175.49600219726562,
+        561.1130981445312,
+        202.76329040527344,
+        571.3718872070312
+      ],
+      "source_text": "Loans and advances\n124,015"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 383515.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 226,
+      "bbox": [
+        175.4949951171875,
+        265.7580261230469,
+        202.7622833251953,
+        276.01678466796875
+      ],
+      "source_text": "Total assets\n383,515"
+    },
+    {
+      "metric_code": "TOTAL_ASSETS",
+      "name": "Total assets",
+      "value": 341726.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 226,
+      "bbox": [
+        175.4949951171875,
+        586.625,
+        202.7622833251953,
+        596.8837890625
+      ],
+      "source_text": "Total assets\n341,726"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 634346.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 228,
+      "bbox": [
+        200.29998779296875,
+        602.56201171875,
+        227.56727600097656,
+        612.82080078125
+      ],
+      "source_text": "Loans and advances\n634,346"
+    },
+    {
+      "metric_code": "TOTAL_LOANS",
+      "name": "Total loans",
+      "value": 24108.0,
+      "currency": null,
+      "unit": null,
+      "method": "regex_text",
+      "confidence": 0.7,
+      "page_index": 251,
+      "bbox": [
+        238.5019989013672,
+        162.33700561523438,
+        261.5787658691406,
+        172.5957489013672
+      ],
+      "source_text": "Loans and advances\n24,108"
+    }
+  ]
+}
