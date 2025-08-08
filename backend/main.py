@@ -1,6 +1,9 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, Response
+import json
 from flask_cors import CORS
 from pathlib import Path
+
+from scraper import BANK_REGISTRY, extract_financial_data, FINANCIAL_SCHEMA
 
 from collector import (
     collect_bank_reports, collect_all, collect_from_urls, 
@@ -17,14 +20,16 @@ def status():
     return {"status": "Backend is running!"}
 
 
-@app.route('/api/validate', methods=['POST'])
+@app.route('/api/validate', methods=['GET'])
 def api_validate():
     """
-    Triggers a re-validation of all documents in the library.
+    Triggers a re-validation of all documents in the library and streams progress.
     """
-    result = validate_library()
-    update_index()
-    return jsonify(result)
+    def generate():
+        for event in validate_library():
+            yield f"data: {json.dumps(event)}\n\n"
+    
+    return Response(generate(), mimetype='text/event-stream')
 
 
 @app.route('/api/extract')

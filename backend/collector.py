@@ -606,43 +606,52 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
     return {"reports": saved}
 
 
-def validate_library() -> Dict[str, any]:
+def validate_library():
     """
-    Iterate through all PDFs in the library, re-classify them,
-    and update their .classification.json files.
+    Generator function that yields classification progress events for streaming.
     """
     base_dir = os.path.join("data", "reports")
-    reclassified = 0
-    failed = 0
     if not os.path.exists(base_dir):
-        return {"reclassified": 0, "failed": 0, "message": "No reports directory found."}
+        yield {"type": "finish", "reclassified": 0, "failed": 0, "message": "No reports directory found."}
+        return
 
+    all_pdfs = []
     for bank in os.listdir(base_dir):
         bank_dir = os.path.join(base_dir, bank)
         if not os.path.isdir(bank_dir):
             continue
         for fname in os.listdir(bank_dir):
-            if not fname.lower().endswith(".pdf"):
-                continue
-            
-            abs_path = os.path.join(bank_dir, fname)
-            m = re.match(rf"{re.escape(bank)}_FY(\d+)_Annual_Report\.pdf$", fname, re.IGNORECASE)
-            year = int(m.group(1)) if m else None
+            if fname.lower().endswith(".pdf"):
+                all_pdfs.append((bank, fname, os.path.join(bank_dir, fname)))
+    
+    total_docs = len(all_pdfs)
+    yield {"type": "start", "total": total_docs, "message": f"Starting validation for {total_docs} documents..."}
 
-            try:
-                is_accepted, details = is_likely_financial_report(abs_path, bank, year)
-                if details:
-                    with open(abs_path + ".classification.json", "w", encoding="utf-8") as f:
-                        json.dump(details, f)
-                    reclassified += 1
-                else:
-                    failed += 1
-            except Exception as e:
-                logger.error(f"Failed to re-validate {abs_path}: {e}")
+    reclassified = 0
+    failed = 0
+    for i, (bank, fname, abs_path) in enumerate(all_pdfs):
+        yield {"type": "progress", "current": i + 1, "total": total_docs, "path": fname}
+        
+        m = re.match(rf"{re.escape(bank)}_FY(\d+)_Annual_Report\.pdf$", fname, re.IGNORECASE)
+        year = int(m.group(1)) if m else None
+
+        try:
+            is_accepted, details = is_likely_financial_report(abs_path, bank, year)
+            if details:
+                with open(abs_path + ".classification.json", "w", encoding="utf-8") as f:
+                    json.dump(details, f)
+                reclassified += 1
+                yield {"type": "result", "path": fname, "status": "success", "details": details}
+            else:
                 failed += 1
+                yield {"type": "result", "path": fname, "status": "failure", "details": {"error": "Classification returned no details."}}
+        except Exception as e:
+            logger.error(f"Failed to re-validate {abs_path}: {e}")
+            failed += 1
+            yield {"type": "result", "path": fname, "status": "error", "details": {"error": str(e)}}
     
     update_index()
-    return {"reclassified": reclassified, "failed": failed}
+    yield {"type": "finish", "reclassified": reclassified, "failed": failed, "message": "Validation complete."}
 
 
 def cleanup_reports() -> Dict[str, List[str]]:

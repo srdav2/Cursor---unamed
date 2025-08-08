@@ -485,17 +485,53 @@
     async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed. Ensure backend is running.'); } }
     async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed. Ensure backend is running.'); } }
     async function validate() {
-      const resultsContainer = document.getElementById('mr-validation-results');
-      if (!resultsContainer) return;
-      resultsContainer.textContent = 'Validating library... this may take a while.';
-      try {
-        const result = await fetchJSON(`${backend.base}/api/validate`, { method: 'POST' });
-        resultsContainer.textContent = `Validation complete. Reclassified: ${result.reclassified}, Failed: ${result.failed}.`;
-        await refreshIndex();
-      } catch (e) {
-        resultsContainer.textContent = 'Validation failed. Ensure backend and Ollama are running.';
-        alert('Validation failed. Ensure backend and Ollama are running.');
-      }
+      const logContainer = document.getElementById('log-container');
+      if (!logContainer) return;
+      
+      logContainer.innerHTML = 'Connecting to validation stream...';
+      const eventSource = new EventSource(`${backend.base}/api/validate`);
+
+      eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const logEntry = document.createElement('div');
+
+        if (data.type === 'start') {
+          logContainer.innerHTML = ''; // Clear initial message
+          logEntry.textContent = `[${new Date().toLocaleTimeString()}] 🚀 ${data.message}`;
+          logEntry.style.color = '#87ceeb';
+        } else if (data.type === 'progress') {
+          logEntry.textContent = `[${new Date().toLocaleTimeString()}] (${data.current}/${data.total}) Classifying: ${data.path}...`;
+        } else if (data.type === 'result') {
+            const details = data.details || {};
+            if (data.status === 'success') {
+                const score = details.confidence_score?.toFixed(1) || 'N/A';
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ✅ SUCCESS: ${data.path} -> ${details.document_type} (Score: ${score})`;
+                logEntry.style.color = '#32cd32';
+            } else {
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ❌ FAILED: ${data.path} - ${details.error || 'Unknown error'}`;
+                logEntry.style.color = '#ff6347';
+            }
+        } else if (data.type === 'finish') {
+          logEntry.textContent = `[${new Date().toLocaleTimeString()}] 🎉 ${data.message}`;
+          logEntry.style.color = '#87ceeb';
+          eventSource.close();
+          refreshIndex(); // Refresh table now that it's all done
+        }
+        
+        if(logContainer.childNodes.length > 200) {
+            logContainer.removeChild(logContainer.firstChild);
+        }
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      };
+
+      eventSource.onerror = function() {
+        const logEntry = document.createElement('div');
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] Stream connection failed. Is the backend running?`;
+        logEntry.style.color = '#ff6347';
+        logContainer.appendChild(logEntry);
+        eventSource.close();
+      };
     }
 
     if (uploadBtn) uploadBtn.addEventListener('click', uploadReport);
