@@ -1,0 +1,25 @@
+# OS files
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment vars / secrets
+.env
+.env.*
+
+# Data outputs (keep folder, ignore contents)
+data/*
+!data/.gitkeep
+
+# SQLite databases
+*.sqlite
+*.db
