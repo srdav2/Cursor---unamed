@@ -121,6 +121,63 @@
       }
     }
   });
+
+  // Client-side extractor UI (no server required)
+  const main = document.getElementById('main');
+  if (main && window.ClientSideExtractor) {
+    const container = document.createElement('div');
+    container.className = 'container';
+    container.style.marginBottom = '1rem';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Client-side PDF Extraction (No Server)';
+
+    const desc = document.createElement('p');
+    desc.textContent = 'Load a local annual report PDF and extract sample metrics in-browser.';
+
+    const controls = document.createElement('div');
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/pdf';
+
+    const extractBtn = document.createElement('button');
+    extractBtn.textContent = 'Extract Data';
+    extractBtn.className = 'button';
+    extractBtn.style.marginLeft = '0.5rem';
+
+    const output = document.createElement('pre');
+    output.style.whiteSpace = 'pre-wrap';
+    output.style.fontSize = '12px';
+    output.style.background = '#f6f6f6';
+    output.style.padding = '8px';
+    output.style.borderRadius = '6px';
+    output.style.border = '1px solid #e0e0e0';
+
+    extractBtn.addEventListener('click', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        output.textContent = 'Please choose a PDF file first.';
+        return;
+      }
+      output.textContent = 'Extracting...';
+      try {
+        const items = await window.ClientSideExtractor.extractFromPdf(file);
+        output.textContent = JSON.stringify({ items }, null, 2);
+      } catch (err) {
+        output.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
+      }
+    });
+
+    controls.appendChild(fileInput);
+    controls.appendChild(extractBtn);
+
+    container.appendChild(title);
+    container.appendChild(desc);
+    container.appendChild(controls);
+    container.appendChild(document.createElement('hr'));
+    container.appendChild(output);
+    main.prepend(container);
+  }
 })();
 
 

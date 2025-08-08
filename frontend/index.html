@@ -189,6 +189,15 @@
       <div id="backdrop" class="backdrop" hidden></div>
     </div>
 
+    <!-- PDF.js for client-side PDF parsing (no backend required) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-x4pC8c1FQZfH5P2u3r1lV0U3t4jC/l7WkqLRWjVh5xqzv0h0q6vFZkVJ2Oqv7t7b6pQ0D9H0+9zv4W7zv5d5xw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      // Set the worker source for PDF.js when using CDN
+      if (window['pdfjsLib']) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    </script>
+    <script src="./extractor.js"></script>
     <script src="./script.js"></script>
   </body>
   </html>
