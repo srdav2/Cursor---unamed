@@ -2,8 +2,11 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from pathlib import Path
 
-from scraper import extract_financial_data, FINANCIAL_SCHEMA, BANK_REGISTRY
-from collector import collect_bank_reports, collect_all, collect_from_urls, update_index, cleanup_reports, migrate_existing, load_bank_sources
+from collector import (
+    collect_bank_reports, collect_all, collect_from_urls, 
+    update_index, cleanup_reports, migrate_existing, load_bank_sources,
+    validate_library
+)
 
 app = Flask(__name__)
 # Relaxed CORS for file:// origin (shows as Origin: null)
@@ -12,6 +15,16 @@ CORS(app, resources={r"/api/*": {"origins": ["*", "null"]}}, supports_credential
 @app.route('/api/status')
 def status():
     return {"status": "Backend is running!"}
+
+
+@app.route('/api/validate', methods=['POST'])
+def api_validate():
+    """
+    Triggers a re-validation of all documents in the library.
+    """
+    result = validate_library()
+    update_index()
+    return jsonify(result)
 
 
 @app.route('/api/extract')

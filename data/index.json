@@ -1,9 +1,739 @@
 {
+  "anz": {
+    "reports": [
+      {
+        "year": "2024",
+        "path": "data/reports/anz/anz_FY2024_Annual_Report.pdf",
+        "size_bytes": 14497220,
+        "abs_path": "data/reports/anz/anz_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 4,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "barc": {
+    "reports": [
+      {
+        "year": "2024",
+        "path": "data/reports/barc/barc_FY2024_Annual_Report.pdf",
+        "size_bytes": 12570152,
+        "abs_path": "data/reports/barc/barc_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 7,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/barc/barc_FY2023_Annual_Report.pdf",
+        "size_bytes": 12613857,
+        "abs_path": "data/reports/barc/barc_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 5,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/barc/barc_FY2022_Annual_Report.pdf",
+        "size_bytes": 16306202,
+        "abs_path": "data/reports/barc/barc_FY2022_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/barc/barc_FY2021_Annual_Report.pdf",
+        "size_bytes": 11979208,
+        "abs_path": "data/reports/barc/barc_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/barc/barc_FY2020_Annual_Report.pdf",
+        "size_bytes": 5609323,
+        "abs_path": "data/reports/barc/barc_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2019",
+        "path": "data/reports/barc/barc_FY2019_Annual_Report.pdf",
+        "size_bytes": 6520760,
+        "abs_path": "data/reports/barc/barc_FY2019_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 7,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "cba": {
+    "reports": []
+  },
+  "ms": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/ms/ms_FY2025_Annual_Report.pdf",
+        "size_bytes": 2413104,
+        "abs_path": "data/reports/ms/ms_FY2025_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 2,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/ms/ms_FY2024_Annual_Report.pdf",
+        "size_bytes": 2949021,
+        "abs_path": "data/reports/ms/ms_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 3,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/ms/ms_FY2023_Annual_Report.pdf",
+        "size_bytes": 2723324,
+        "abs_path": "data/reports/ms/ms_FY2023_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/ms/ms_FY2022_Annual_Report.pdf",
+        "size_bytes": 2021544,
+        "abs_path": "data/reports/ms/ms_FY2022_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/ms/ms_FY2021_Annual_Report.pdf",
+        "size_bytes": 2691600,
+        "abs_path": "data/reports/ms/ms_FY2021_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/ms/ms_FY2020_Annual_Report.pdf",
+        "size_bytes": 2080736,
+        "abs_path": "data/reports/ms/ms_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 3,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "boc": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/boc/boc_FY2025_Annual_Report.pdf",
+        "size_bytes": 2603129,
+        "abs_path": "data/reports/boc/boc_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/boc/boc_FY2024_Annual_Report.pdf",
+        "size_bytes": 32457032,
+        "abs_path": "data/reports/boc/boc_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 9,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/boc/boc_FY2023_Annual_Report.pdf",
+        "size_bytes": 17568450,
+        "abs_path": "data/reports/boc/boc_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "wbc": {
+    "reports": [
+      {
+        "year": "2024",
+        "path": "data/reports/wbc/wbc_FY2024_Annual_Report.pdf",
+        "size_bytes": 17917911,
+        "abs_path": "data/reports/wbc/wbc_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 8,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/wbc/wbc_FY2023_Annual_Report.pdf",
+        "size_bytes": 12309056,
+        "abs_path": "data/reports/wbc/wbc_FY2023_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 2,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/wbc/wbc_FY2022_Annual_Report.pdf",
+        "size_bytes": 10441055,
+        "abs_path": "data/reports/wbc/wbc_FY2022_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 7,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/wbc/wbc_FY2021_Annual_Report.pdf",
+        "size_bytes": 7016366,
+        "abs_path": "data/reports/wbc/wbc_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 5,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/wbc/wbc_FY2020_Annual_Report.pdf",
+        "size_bytes": 10078822,
+        "abs_path": "data/reports/wbc/wbc_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 8,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2019",
+        "path": "data/reports/wbc/wbc_FY2019_Annual_Report.pdf",
+        "size_bytes": 4022593,
+        "abs_path": "data/reports/wbc/wbc_FY2019_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "dbs": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/dbs/dbs_FY2025_Annual_Report.pdf",
+        "size_bytes": 108545,
+        "abs_path": "data/reports/dbs/dbs_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 5,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "wfc": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/wfc/wfc_FY2025_Annual_Report.pdf",
+        "size_bytes": 17460101,
+        "abs_path": "data/reports/wfc/wfc_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/wfc/wfc_FY2024_Annual_Report.pdf",
+        "size_bytes": 15511280,
+        "abs_path": "data/reports/wfc/wfc_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/wfc/wfc_FY2023_Annual_Report.pdf",
+        "size_bytes": 5807551,
+        "abs_path": "data/reports/wfc/wfc_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 3,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/wfc/wfc_FY2022_Annual_Report.pdf",
+        "size_bytes": 2798802,
+        "abs_path": "data/reports/wfc/wfc_FY2022_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/wfc/wfc_FY2021_Annual_Report.pdf",
+        "size_bytes": 3590271,
+        "abs_path": "data/reports/wfc/wfc_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 4,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/wfc/wfc_FY2020_Annual_Report.pdf",
+        "size_bytes": 5669138,
+        "abs_path": "data/reports/wfc/wfc_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 8,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "bac": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/bac/bac_FY2025_Annual_Report.pdf",
+        "size_bytes": 7883363,
+        "abs_path": "data/reports/bac/bac_FY2025_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 2,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/bac/bac_FY2024_Annual_Report.pdf",
+        "size_bytes": 14534966,
+        "abs_path": "data/reports/bac/bac_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/bac/bac_FY2023_Annual_Report.pdf",
+        "size_bytes": 16464691,
+        "abs_path": "data/reports/bac/bac_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 4,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/bac/bac_FY2022_Annual_Report.pdf",
+        "size_bytes": 28291666,
+        "abs_path": "data/reports/bac/bac_FY2022_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/bac/bac_FY2021_Annual_Report.pdf",
+        "size_bytes": 11703967,
+        "abs_path": "data/reports/bac/bac_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/bac/bac_FY2020_Annual_Report.pdf",
+        "size_bytes": 19799519,
+        "abs_path": "data/reports/bac/bac_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "stan": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/stan/stan_FY2025_Annual_Report.pdf",
+        "size_bytes": 3183995,
+        "abs_path": "data/reports/stan/stan_FY2025_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/stan/stan_FY2024_Annual_Report.pdf",
+        "size_bytes": 468085,
+        "abs_path": "data/reports/stan/stan_FY2024_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/stan/stan_FY2023_Annual_Report.pdf",
+        "size_bytes": 1036253,
+        "abs_path": "data/reports/stan/stan_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 7,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/stan/stan_FY2021_Annual_Report.pdf",
+        "size_bytes": 645955,
+        "abs_path": "data/reports/stan/stan_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 3,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/stan/stan_FY2020_Annual_Report.pdf",
+        "size_bytes": 407882,
+        "abs_path": "data/reports/stan/stan_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 5,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "hsbc": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/hsbc/hsbc_FY2025_Annual_Report.pdf",
+        "size_bytes": 276286,
+        "abs_path": "data/reports/hsbc/hsbc_FY2025_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 0,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/hsbc/hsbc_FY2024_Annual_Report.pdf",
+        "size_bytes": 268256,
+        "abs_path": "data/reports/hsbc/hsbc_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 9,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "isp": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/isp/isp_FY2025_Annual_Report.pdf",
+        "size_bytes": 5476089,
+        "abs_path": "data/reports/isp/isp_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "san": {
+    "reports": [
+      {
+        "year": "2020",
+        "path": "data/reports/san/san_FY2020_Annual_Report.pdf",
+        "size_bytes": 221384,
+        "abs_path": "data/reports/san/san_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 3,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2018",
+        "path": "data/reports/san/san_FY2018_Annual_Report.pdf",
+        "size_bytes": 115454,
+        "abs_path": "data/reports/san/san_FY2018_Annual_Report.pdf",
+        "is_financial": false,
+        "classification": {
+          "document_type": "Other",
+          "confidence_score": 2,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2017",
+        "path": "data/reports/san/san_FY2017_Annual_Report.pdf",
+        "size_bytes": 768741,
+        "abs_path": "data/reports/san/san_FY2017_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 6,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2016",
+        "path": "data/reports/san/san_FY2016_Annual_Report.pdf",
+        "size_bytes": 402509,
+        "abs_path": "data/reports/san/san_FY2016_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 4,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "dbk": {
+    "reports": []
+  },
   "nab": {
     "reports": [
       {
         "year": "2024",
-        "path": "data/reports/nab/nab_FY2024_Annual_Report.pdf"
+        "path": "data/reports/nab/nab_FY2024_Annual_Report.pdf",
+        "size_bytes": 8285754,
+        "abs_path": "data/reports/nab/nab_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 5,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "mufg": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/mufg/mufg_FY2025_Annual_Report.pdf",
+        "size_bytes": 832174,
+        "abs_path": "data/reports/mufg/mufg_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 4,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2018",
+        "path": "data/reports/mufg/mufg_FY2018_Annual_Report.pdf",
+        "size_bytes": 7503649,
+        "abs_path": "data/reports/mufg/mufg_FY2018_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      }
+    ]
+  },
+  "jpm": {
+    "reports": [
+      {
+        "year": "2025",
+        "path": "data/reports/jpm/jpm_FY2025_Annual_Report.pdf",
+        "size_bytes": 6705718,
+        "abs_path": "data/reports/jpm/jpm_FY2025_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 9,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2024",
+        "path": "data/reports/jpm/jpm_FY2024_Annual_Report.pdf",
+        "size_bytes": 17104906,
+        "abs_path": "data/reports/jpm/jpm_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2023",
+        "path": "data/reports/jpm/jpm_FY2023_Annual_Report.pdf",
+        "size_bytes": 6814192,
+        "abs_path": "data/reports/jpm/jpm_FY2023_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2022",
+        "path": "data/reports/jpm/jpm_FY2022_Annual_Report.pdf",
+        "size_bytes": 16797166,
+        "abs_path": "data/reports/jpm/jpm_FY2022_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2021",
+        "path": "data/reports/jpm/jpm_FY2021_Annual_Report.pdf",
+        "size_bytes": 8488946,
+        "abs_path": "data/reports/jpm/jpm_FY2021_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 9,
+          "source": "heuristic"
+        }
+      },
+      {
+        "year": "2020",
+        "path": "data/reports/jpm/jpm_FY2020_Annual_Report.pdf",
+        "size_bytes": 8302860,
+        "abs_path": "data/reports/jpm/jpm_FY2020_Annual_Report.pdf",
+        "is_financial": true,
+        "classification": {
+          "document_type": "Annual Report",
+          "confidence_score": 10,
+          "source": "heuristic"
+        }
       }
     ]
   }

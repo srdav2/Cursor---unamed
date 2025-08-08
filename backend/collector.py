@@ -12,6 +12,76 @@ from urllib.parse import urljoin
 from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
 import pdfplumber
 import shutil
+import ollama
+
+
+def classify_document_with_ollama(pdf_path: str, timeout: int = 30) -> Optional[Dict[str, any]]:
+    """
+    Use local Ollama Llama3.1 to classify the document type from the first few pages.
+    Returns a dict with 'document_type' and 'confidence_score' (0-10) or None on failure.
+    """
+    try:
+        client = ollama.Client(timeout=timeout)
+        # Check if model is available, to provide a better error message.
+        try:
+            client.show('llama3.1:8b')
+        except ollama.ResponseError as e:
+            if e.status_code == 404:
+                logger.error("Ollama model 'llama3.1:8b' not found. Please run `ollama pull llama3.1:8b`")
+                return None
+            raise
+
+        text = _read_pdf_text_head(pdf_path, max_pages=5)
+        if not text.strip():
+            return None
+
+        prompt = f"""
+Analyze the following text from the first few pages of a financial document.
+Based on the content, classify the document into ONE of the following categories:
+- Annual Report
+- Interim Report (e.g., quarterly, half-year)
+- Investor Presentation
+- Press Release
+- Other (e.g., sustainability report, proxy statement, circular)
+
+Also, provide a confidence score from 0 to 10 for your classification.
+Respond ONLY with a valid JSON object in the format:
+{{"document_type": "...", "confidence_score": ...}}
+
+Document Text:
+---
+{text[:8000]}
+---
+"""
+        response = client.generate(
+            model='llama3.1:8b',
+            prompt=prompt,
+            format='json',
+            options={'temperature': 0.1}
+        )
+        
+        response_text = response.get('response', '{}').strip()
+        # The model sometimes returns the JSON wrapped in markdown ```json ... ```
+        response_text = re.sub(r'^```json\s*|\s*```$', '', response_text)
+        
+        data = json.loads(response_text)
+        
+        doc_type = data.get("document_type")
+        score = data.get("confidence_score")
+
+        if isinstance(doc_type, str) and isinstance(score, (int, float)):
+            return {"document_type": doc_type, "confidence_score": float(score)}
+            
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON response from Ollama: {e}")
+    except ollama.ResponseError as e:
+        logger.error(f"Ollama API error: {e.status_code} - {e.error}")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred while classifying with Ollama: {e}")
+        
+    return None
+
+
 
 
 logger = logging.getLogger(__name__)
@@ -131,6 +201,38 @@ def extract_pdf_links_from_html(html: str, base_url: str) -> List[Tuple[str, str
     return out
 
 
+def pre_download_filter(url: str, text: str) -> bool:
+    """
+    Apply strict heuristics to link text to avoid downloading obvious non-annual reports.
+    Returns True if the link is a plausible candidate, False otherwise.
+    """
+    lower_text = text.lower()
+    lower_url = url.lower()
+
+    # Strong positive signals
+    positive_keywords = ["annual report", "annual financial report", "form 10-k", "annual review"]
+    if any(keyword in lower_text for keyword in positive_keywords):
+        return True
+    if any(keyword.replace(' ', '') in lower_url for keyword in positive_keywords):
+        return True
+
+    # Strong negative signals that immediately disqualify
+    negative_keywords = [
+        "interim", "quarter", "q1", "q2", "q3", "q4", "half-year", "half year",
+        "trading update", "presentation", "investor day", "webcast", "transcript",
+        "press release", "news", "pillar 3", "sustainability", "esg", "csr",
+        "proxy statement", "circular", "notice of meeting", "agm",
+        "fact sheet", "factbook", "results announcement"
+    ]
+    if any(keyword in lower_text for keyword in negative_keywords):
+        return False
+    if any(keyword.replace(' ', '') in lower_url for keyword in negative_keywords):
+        return False
+
+    # If no strong signals, be permissive but this can be tightened
+    return False # Default to false to be strict
+
+
 def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
     """
     Discover candidate (year, pdf_url, label) tuples for a bank from configured sources.
@@ -138,51 +240,61 @@ def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
     sources_map = load_bank_sources()
     sources = sources_map.get(bank.lower(), [])
     results: List[Tuple[int, str, str]] = []
+    
+    min_year, max_year = _year_bounds()
+
     for src in sources:
         try:
             r = http_get(src)
             soup = BeautifulSoup(r.text, "html.parser")
 
-            # Collect direct PDF links
+            # Collect direct PDF links that pass pre-download filter
             pdf_links = extract_pdf_links_from_html(r.text, src)
             for url, label in pdf_links:
-                text = url + " " + label
-                years = extract_year_candidates(text)
+                if not pre_download_filter(url, label):
+                    continue
+                
+                years = extract_year_candidates(label) or extract_year_candidates(url)
                 if not years:
                     continue
-                # Take the most likely year embedded
-                year = max(years)
-                # Accept any PDF with a year; will be filtered by top N later
-                results.append((year, url, label))
+                
+                year = max(y for y in years if min_year <= y <= max_year)
+                if year:
+                    results.append((year, url, label))
 
-            # Also follow candidate detail pages (non-PDF) that likely contain annual report PDFs
+            # Also follow candidate detail pages
             candidate_pages: List[str] = []
             for a in soup.find_all("a", href=True):
                 href = a["href"].strip()
-                abs_url = urljoin(src, href)
-                if abs_url.lower().endswith(".pdf"):
-                    continue
                 label = (a.get_text(" ", strip=True) or "").lower()
-                if re.search(r"annual\s+report|annual\s+review|form\s+10-?k", label) or re.search(r"annual\s+report", abs_url, re.IGNORECASE):
-                    candidate_pages.append(abs_url)
+                
+                if href.lower().endswith(".pdf"):
+                    continue # Already handled above
+                
+                if pre_download_filter(urljoin(src,href), label):
+                    candidate_pages.append(urljoin(src, href))
 
             # Depth-1: fetch candidate pages and extract PDFs
-            for page_url in list(set(candidate_pages))[:12]:  # safety cap
+            for page_url in list(set(candidate_pages))[:8]:  # Safety cap
                 try:
                     pr = http_get(page_url)
                     sub_pdfs = extract_pdf_links_from_html(pr.text, page_url)
                     for url, label in sub_pdfs:
-                        text = url + " " + label
-                        years = extract_year_candidates(text)
+                        if not pre_download_filter(url, label):
+                           continue
+                        
+                        years = extract_year_candidates(label) or extract_year_candidates(url)
                         if not years:
                             continue
-                        year = max(years)
-                        # Accept PDFs with year, regardless of label keywords
-                        results.append((year, url, label))
-                except Exception as exc:  # noqa: BLE001
+
+                        year = max(y for y in years if min_year <= y <= max_year)
+                        if year:
+                            results.append((year, url, label))
+                except Exception as exc:
                     logger.debug("Skip candidate page %s: %s", page_url, exc)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("Failed to parse %s: %s", src, exc)
+
     # Deduplicate by (year, url)
     dedup: Dict[Tuple[int, str], Tuple[int, str, str]] = {}
     for y, u, l in results:
@@ -280,28 +392,61 @@ def compute_financial_report_score(pdf_path: str, bank: Optional[str], year: Opt
     return max(score, 0)
 
 
-def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> bool:
-    return compute_financial_report_score(pdf_path, bank, year) >= 3
+def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> Tuple[bool, Optional[Dict[str, any]]]:
+    """
+    Classifies a PDF using Ollama if available, falling back to heuristics.
+    Returns a tuple: (is_accepted, classification_details).
+    """
+    classification = classify_document_with_ollama(pdf_path)
+    if classification:
+        doc_type = classification.get("document_type", "Other")
+        score = classification.get("confidence_score", 0)
+        # Strict acceptance criteria
+        is_accepted = doc_type == "Annual Report" and score >= 7
+        return is_accepted, classification
+
+    # Fallback to old heuristic if Ollama fails
+    score = compute_financial_report_score(pdf_path, bank, year)
+    is_accepted = score >= 3
+    fallback_details = {
+        "document_type": "Annual Report" if is_accepted else "Other",
+        "confidence_score": min(score, 10), # Cap score at 10 for consistency
+        "source": "heuristic"
+    }
+    return is_accepted, fallback_details
 
 
-def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[str]:
+def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[Dict[str, any]]:
+    """
+    Downloads a file, validates it, and if accepted, returns its path and classification details.
+    """
     tmp_path = dest_path + ".tmp"
     try:
         download_file(url, tmp_path)
-        if is_likely_financial_report(tmp_path, bank, year):
+        is_accepted, details = is_likely_financial_report(tmp_path, bank, year)
+        
+        if is_accepted:
             ensure_directory(os.path.dirname(dest_path))
             try:
                 os.replace(tmp_path, dest_path)
             except OSError:
                 shutil.copyfile(tmp_path, dest_path)
-            return dest_path
+            
+            # Persist classification details alongside the file
+            if details:
+                with open(dest_path + ".classification.json", "w", encoding="utf-8") as f:
+                    json.dump(details, f)
+
+            return {"path": dest_path, "classification": details}
         else:
+            logger.info(f"Rejected document for {bank} FY{year} from {url}. Reason: {details}")
             try:
                 os.remove(tmp_path)
             except OSError:
                 pass
             return None
-    except Exception:
+    except Exception as e:
+        logger.error(f"Failed to download/validate {url}: {e}")
         try:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
@@ -317,16 +462,16 @@ def build_report_path(bank: str, year: int) -> str:
     return os.path.join(directory, filename)
 
 
-def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, List[Dict[str, str]]]]:
+def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, List[Dict[str, any]]]]:
     base_dir = os.path.join("data", "reports")
-    index: Dict[str, Dict[str, List[Dict[str, str]]]] = {}
+    index: Dict[str, Dict[str, List[Dict[str, any]]]] = {}
     if not os.path.exists(base_dir):
         return index
     for bank in os.listdir(base_dir):
         bank_dir = os.path.join(base_dir, bank)
         if not os.path.isdir(bank_dir):
             continue
-        entries: List[Dict[str, str]] = []
+        entries: List[Dict[str, any]] = []
         for fname in os.listdir(bank_dir):
             if not fname.lower().endswith(".pdf"):
                 continue
@@ -341,24 +486,40 @@ def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, Lis
                 size = os.path.getsize(abs_path)
             except OSError:
                 size = 0
-            # Skip out-of-range years to avoid garbage like FY2059
+            
+            # Skip out-of-range years
             try:
-                y = int(year)
+                y_int = int(year)
                 min_year, max_year = _year_bounds()
-                if not (min_year <= y <= max_year):
+                if not (min_year <= y_int <= max_year):
                     continue
             except Exception:
                 continue
-            # validate
-            is_fin = is_likely_financial_report(abs_path, bank, int(year))
-            score = compute_financial_report_score(abs_path, bank, int(year))
+
+            # Load classification details if they exist
+            classification = None
+            classification_path = abs_path + ".classification.json"
+            if os.path.exists(classification_path):
+                try:
+                    with open(classification_path, 'r', encoding='utf-8') as f:
+                        classification = json.load(f)
+                except Exception:
+                    pass
+            
+            # Fallback to heuristic score if no classification file
+            if not classification:
+                is_fin, details = is_likely_financial_report(abs_path, bank, int(year))
+                classification = details
+            else:
+                 is_fin = classification.get("document_type") == "Annual Report"
+
             entries.append({
                 "year": year,
                 "path": file_path,
                 "size_bytes": size,
                 "abs_path": abs_path,
                 "is_financial": is_fin,
-                "score": score
+                "classification": classification,
             })
         entries.sort(key=lambda e: e["year"], reverse=True)
         index[bank] = {"reports": entries}
@@ -379,9 +540,9 @@ def collect_bank_reports(bank: str, years: int = 6) -> Dict[str, List[Dict[str, 
     saved: List[Dict[str, str]] = []
     for year, url, _label in chosen:
         dest = build_report_path(bank, year)
-        path = download_and_validate(url, dest, bank, year)
-        if path:
-            saved.append({"year": str(year), "path": path})
+        result = download_and_validate(url, dest, bank, year)
+        if result and result.get("path"):
+            saved.append({"year": str(year), "path": result["path"]})
         else:
             logger.warning("Rejected non-financial PDF for %s %s: %s", bank, year, url)
     return {"reports": saved}
@@ -415,8 +576,8 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
         dest = build_report_path(bank, year)
         try:
             if url.lower().startswith("http://") or url.lower().startswith("https://"):
-                path = download_and_validate(url, dest, bank, year)
-                if not path:
+                result = download_and_validate(url, dest, bank, year)
+                if not (result and result.get("path")):
                     continue
             else:
                 # treat as local file path
@@ -424,12 +585,17 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
                     ensure_directory(os.path.dirname(dest))
                     shutil.copyfile(url, dest)
                     # validate local file; delete if not a financial report
-                    if not is_likely_financial_report(dest, bank, year):
+                    is_accepted, details = is_likely_financial_report(dest, bank, year)
+                    if not is_accepted:
+                        logger.info(f"Rejected local file {url}. Reason: {details}")
                         try:
                             os.remove(dest)
                         except OSError:
                             pass
                         continue
+                    if details:
+                         with open(dest + ".classification.json", "w", encoding="utf-8") as f:
+                            json.dump(details, f)
                 else:
                     logger.warning("Local path not found: %s", url)
                     continue
@@ -438,6 +604,45 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
             logger.warning("Failed to ingest %s %s: %s", bank, year, exc)
     update_index()
     return {"reports": saved}
+
+
+def validate_library() -> Dict[str, any]:
+    """
+    Iterate through all PDFs in the library, re-classify them,
+    and update their .classification.json files.
+    """
+    base_dir = os.path.join("data", "reports")
+    reclassified = 0
+    failed = 0
+    if not os.path.exists(base_dir):
+        return {"reclassified": 0, "failed": 0, "message": "No reports directory found."}
+
+    for bank in os.listdir(base_dir):
+        bank_dir = os.path.join(base_dir, bank)
+        if not os.path.isdir(bank_dir):
+            continue
+        for fname in os.listdir(bank_dir):
+            if not fname.lower().endswith(".pdf"):
+                continue
+            
+            abs_path = os.path.join(bank_dir, fname)
+            m = re.match(rf"{re.escape(bank)}_FY(\d+)_Annual_Report\.pdf$", fname, re.IGNORECASE)
+            year = int(m.group(1)) if m else None
+
+            try:
+                is_accepted, details = is_likely_financial_report(abs_path, bank, year)
+                if details:
+                    with open(abs_path + ".classification.json", "w", encoding="utf-8") as f:
+                        json.dump(details, f)
+                    reclassified += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                logger.error(f"Failed to re-validate {abs_path}: {e}")
+                failed += 1
+    
+    update_index()
+    return {"reclassified": reclassified, "failed": failed}
 
 
 def cleanup_reports() -> Dict[str, List[str]]:

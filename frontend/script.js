@@ -313,15 +313,27 @@
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
         const th0 = document.createElement('th'); th0.textContent = 'Bank'; trh.appendChild(th0);
-        years.forEach(y => { const th = document.createElement('th'); th.textContent = `FY${y}`; trh.appendChild(th); });
+        years.forEach(y => { 
+          const th = document.createElement('th'); 
+          th.textContent = `FY${y}`; 
+          th.colSpan = 2; // for status and actions
+          trh.appendChild(th); 
+        });
         thead.appendChild(trh);
         const tbody = document.createElement('tbody');
 
-        function cell(content, downloaded){
+        function cell(content, downloaded, classification){
           const td = document.createElement('td');
           td.style.border = '1px solid #e0e0e0';
           td.style.textAlign = 'center';
           td.style.padding = '4px 6px';
+          
+          let title = '';
+          if (classification) {
+            title = `Type: ${classification.document_type || 'N/A'}\nScore: ${classification.confidence_score?.toFixed(1) || 'N/A'}\nSource: ${classification.source || 'Ollama'}`;
+          }
+          td.title = title;
+
           td.textContent = content;
           if (downloaded === true) td.style.color = '#0b7a0b';
           if (downloaded === false) td.style.color = '#b00020';
@@ -398,7 +410,9 @@
               tr.appendChild(td);
             } else {
               const downloaded = !!(hit.size_bytes && hit.size_bytes > 0);
-              tr.appendChild(cell(downloaded ? (hit.is_financial ? '✓' : '⚠︎') : '×', downloaded));
+              const isFinancial = hit.classification?.document_type === 'Annual Report';
+              const symbol = downloaded ? (isFinancial ? '✓' : '⚠︎') : '×';
+              tr.appendChild(cell(symbol, downloaded, hit.classification));
               tr.appendChild(actionCell(b, y, hit));
             }
           });
@@ -466,14 +480,31 @@
     const collectAllBtn = document.getElementById('mr-collect-all');
     const cleanupBtn = document.getElementById('mr-cleanup');
     const migrateBtn = document.getElementById('mr-migrate');
+    const validateBtn = document.getElementById('mr-validate');
+
     async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed. Ensure backend is running.'); } }
     async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed. Ensure backend is running.'); } }
+    async function validate() {
+      const resultsContainer = document.getElementById('mr-validation-results');
+      if (!resultsContainer) return;
+      resultsContainer.textContent = 'Validating library... this may take a while.';
+      try {
+        const result = await fetchJSON(`${backend.base}/api/validate`, { method: 'POST' });
+        resultsContainer.textContent = `Validation complete. Reclassified: ${result.reclassified}, Failed: ${result.failed}.`;
+        await refreshIndex();
+      } catch (e) {
+        resultsContainer.textContent = 'Validation failed. Ensure backend and Ollama are running.';
+        alert('Validation failed. Ensure backend and Ollama are running.');
+      }
+    }
+
     if (uploadBtn) uploadBtn.addEventListener('click', uploadReport);
     if (refreshBtn) refreshBtn.addEventListener('click', refreshIndex);
     if (collectSelBtn) collectSelBtn.addEventListener('click', collectSelected);
     if (collectAllBtn) collectAllBtn.addEventListener('click', collectAll);
     if (cleanupBtn) cleanupBtn.addEventListener('click', cleanup);
     if (migrateBtn) migrateBtn.addEventListener('click', migrate);
+    if (validateBtn) validateBtn.addEventListener('click', validate);
   }
 
   // Initialize panel

@@ -207,7 +207,9 @@
               <button id="mr-collect-all" class="button">Collect Latest 6 (All Banks)</button>
               <button id="mr-cleanup" class="button" title="Remove invalid/out-of-range PDFs and reindex">Cleanup Library</button>
               <button id="mr-migrate" class="button" title="Move PDFs from downloads into library and validate">Migrate Downloads</button>
+              <button id="mr-validate" class="button" title="Re-run classification on all PDFs in the library">Validate Library</button>
             </div>
+            <div id="mr-validation-results" style="margin-top: 16px;"></div>
             <div style="margin-top: 16px; position: relative;">
               <div id="backend-status-pill" style="position:absolute; top:-36px; right:0; padding:4px 10px; border-radius:16px; font-size:12px; background:#b00020; color:white;">Backend: Disconnected</div>
               <h3>Library Index</h3>
@@ -216,6 +218,16 @@
                 <summary>Raw index (debug)</summary>
                 <div id="mr-index" style="font-size: 12px; background:#f6f6f6; border:1px solid #e0e0e0; padding:8px; border-radius:6px; max-height:280px; overflow:auto;"></div>
               </details>
+            </div>
+          </section>
+
+          <section id="settings" style="margin-top: 24px;">
+            <h2>Settings</h2>
+            <p>Configure application settings. More options will be added here in the future.</p>
+            <div>
+              <label for="settings-ollama-model">Ollama Model</label>
+              <input id="settings-ollama-model" type="text" value="llama3.1:8b" disabled />
+              <small>Currently locked to llama3.1:8b. More models may be supported later.</small>
             </div>
           </section>
         </div>

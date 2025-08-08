@@ -1,6 +1,8 @@
 # Python virtual environment
 backend/venv/
 venv/
+desktop/node_modules/
+desktop/dist/
 
 # Python cache files
 __pycache__/

@@ -3,12 +3,12 @@
 
 (function(){
   const SCHEMA = [
-    { standard_name: 'net_interest_income', search_terms: ['Net interest income', 'Interest income, net'], value_kind: 'amount' },
-    { standard_name: 'operating_income', search_terms: ['Operating income', 'Total operating income'], value_kind: 'amount' },
-    { standard_name: 'loan_impairment_expense', search_terms: ['Loan impairment expense', 'Provision for credit losses'], value_kind: 'amount' },
-    { standard_name: 'net_profit_after_tax', search_terms: ['Net profit after tax', 'Profit for the year attributable to equity holders'], value_kind: 'amount' },
-    { standard_name: 'total_assets', search_terms: ['Total assets'], value_kind: 'amount' },
-    { standard_name: 'total_liabilities', search_terms: ['Total liabilities'], value_kind: 'amount' },
+    { standard_name: 'net_interest_income', search_terms: ['Net interest income', 'Interest income, net', 'Net interest revenue', 'Net interest earnings'], value_kind: 'amount' },
+    { standard_name: 'operating_income', search_terms: ['Operating income', 'Total operating income', 'Operating profit', 'Operating profit before provisions'], value_kind: 'amount' },
+    { standard_name: 'loan_impairment_expense', search_terms: ['Loan impairment expense', 'Provision for credit losses', 'Credit impairment charge', 'Loan loss provision'], value_kind: 'amount' },
+    { standard_name: 'net_profit_after_tax', search_terms: ['Net profit after tax', 'Profit for the year attributable to equity holders', 'Net income', 'Profit for the year'], value_kind: 'amount' },
+    { standard_name: 'total_assets', search_terms: ['Total assets', 'Assets, total'], value_kind: 'amount' },
+    { standard_name: 'total_liabilities', search_terms: ['Total liabilities', 'Liabilities, total'], value_kind: 'amount' },
     { standard_name: 'net_cash_from_operating', search_terms: ['Net cash from operating activities', 'Net cash provided by operating activities'], value_kind: 'amount' },
   ];
 
@@ -56,6 +56,18 @@
     return isNaN(v) ? null : v;
   }
 
+  function scoreConfidence({ matchedTerm, exactTermMatch, units, currency, numbersOnLine, pageNeighborhoodText }){
+    let score = 0;
+    if (exactTermMatch) score += 0.45; else if (matchedTerm) score += 0.3;
+    if (units) score += 0.2;
+    if (currency) score += 0.1;
+    if (numbersOnLine === 1) score += 0.15; else if (numbersOnLine === 2) score += 0.05;
+    const t = (pageNeighborhoodText || '').toLowerCase();
+    if (/income statement|statement of profit|balance sheet|statement of financial position|cash flow/.test(t)) score += 0.1;
+    if (score > 1) score = 1;
+    return Math.max(0, score);
+  }
+
   async function extractFromPdf(file){
     const pdfjsLib = window.pdfjsLib;
     if (!pdfjsLib) throw new Error('pdf.js not loaded');
@@ -93,12 +105,26 @@
           const valueFloat = cleanNumberString(valStr);
           if (valueFloat == null) continue;
 
-          // search a small neighborhood (previous line + current line) for units/currency hints
+          // search a small neighborhood (previous line + current line + next) for units/currency hints
           const idx = lines.indexOf(line);
-          const nearby = [lines[idx-1]||'', line, lines[idx+1]||''].join(' ');
+          const prev = lines[idx-1]||'';
+          const next = lines[idx+1]||'';
+          const nearby = [prev, line, next].join(' ');
           const units = detectUnitsNearby(nearby);
           const currency = detectCurrencyNearby(nearby);
           const normalized = normalizeByUnits(valueFloat, units);
+          const confidence = scoreConfidence({
+            matchedTerm: term,
+            exactTermMatch: new RegExp(`^\s*${term.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&')}\s*$`, 'i').test(line),
+            units,
+            currency,
+            numbersOnLine: numbers.length,
+            pageNeighborhoodText: nearby
+          });
+          const flags = [];
+          if (!units) flags.push('units_missing');
+          if (!currency) flags.push('currency_missing');
+          if (numbers.length > 1) flags.push('multiple_numbers_on_line');
 
           results.push({
             metric_name: metric.standard_name,
@@ -109,6 +135,11 @@
             value_kind: metric.value_kind || 'amount',
             source_page: pageNum,
             source_term_used: term,
+            context_prev_line: prev,
+            context_line: line,
+            context_next_line: next,
+            confidence,
+            flags,
           });
           found.add(metric.standard_name);
           break;
