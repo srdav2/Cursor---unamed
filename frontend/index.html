@@ -183,6 +183,34 @@
           <p>
             Welcome to FinSight. Use the navigation to explore analyses and reports.
           </p>
+          <section id="manage-reports" style="margin-top: 24px;">
+            <h2>Manage Reports</h2>
+            <p>Use the tools below to build your report library without using a terminal.</p>
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+              <div>
+                <label for="mr-bank">Bank</label>
+                <select id="mr-bank"></select>
+              </div>
+              <div>
+                <label for="mr-year">Year</label>
+                <input id="mr-year" type="number" min="2010" max="2100" placeholder="2024" />
+              </div>
+              <div>
+                <label for="mr-file">Upload PDF</label>
+                <input id="mr-file" type="file" accept="application/pdf" />
+              </div>
+              <button id="mr-upload" class="button">Save to Library</button>
+              <button id="mr-refresh-index" class="button" title="Refresh index from backend">Refresh Index</button>
+            </div>
+            <div style="margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <button id="mr-collect-selected" class="button">Collect Latest 6 (Selected Bank)</button>
+              <button id="mr-collect-all" class="button">Collect Latest 6 (All Banks)</button>
+            </div>
+            <div style="margin-top: 16px;">
+              <h3>Library Index</h3>
+              <div id="mr-index" style="font-size: 12px; background:#f6f6f6; border:1px solid #e0e0e0; padding:8px; border-radius:6px; max-height:280px; overflow:auto;"></div>
+            </div>
+          </section>
         </div>
       </main>
 

@@ -9,7 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from .scraper import ensure_directory, extract_year_candidates
+from scraper import ensure_directory, extract_year_candidates
+import shutil
 
 
 logger = logging.getLogger(__name__)
@@ -122,17 +123,46 @@ def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
     for src in sources:
         try:
             r = http_get(src)
-            links = extract_pdf_links_from_html(r.text, src)
-            for url, label in links:
+            soup = BeautifulSoup(r.text, "html.parser")
+
+            # Collect direct PDF links
+            pdf_links = extract_pdf_links_from_html(r.text, src)
+            for url, label in pdf_links:
                 text = url + " " + label
                 years = extract_year_candidates(text)
                 if not years:
                     continue
                 # Take the most likely year embedded
                 year = max(years)
-                # Heuristic: prefer links that contain 'annual report'
-                if re.search(r"annual\s+report", text, re.IGNORECASE):
-                    results.append((year, url, label))
+                # Accept any PDF with a year; will be filtered by top N later
+                results.append((year, url, label))
+
+            # Also follow candidate detail pages (non-PDF) that likely contain annual report PDFs
+            candidate_pages: List[str] = []
+            for a in soup.find_all("a", href=True):
+                href = a["href"].strip()
+                abs_url = urljoin(src, href)
+                if abs_url.lower().endswith(".pdf"):
+                    continue
+                label = (a.get_text(" ", strip=True) or "").lower()
+                if re.search(r"annual\s+report|annual\s+review|form\s+10-?k", label) or re.search(r"annual\s+report", abs_url, re.IGNORECASE):
+                    candidate_pages.append(abs_url)
+
+            # Depth-1: fetch candidate pages and extract PDFs
+            for page_url in list(set(candidate_pages))[:12]:  # safety cap
+                try:
+                    pr = http_get(page_url)
+                    sub_pdfs = extract_pdf_links_from_html(pr.text, page_url)
+                    for url, label in sub_pdfs:
+                        text = url + " " + label
+                        years = extract_year_candidates(text)
+                        if not years:
+                            continue
+                        year = max(years)
+                        # Accept PDFs with year, regardless of label keywords
+                        results.append((year, url, label))
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("Skip candidate page %s: %s", page_url, exc)
         except Exception as exc:  # noqa: BLE001
             logger.warning("Failed to parse %s: %s", src, exc)
     # Deduplicate by (year, url)
@@ -229,5 +259,40 @@ def collect_all(banks: List[str], years: int = 6) -> Dict[str, Dict[str, List[Di
     # refresh index file
     update_index()
     return aggregate
+
+
+def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+    """
+    Manually ingest reports from provided URLs or local file paths.
+    items: [ {"year": "2024", "url": "https://.../AnnualReport.pdf" or local path } ]
+    """
+    bank = bank.lower()
+    saved: List[Dict[str, str]] = []
+    for item in items:
+        year_str = str(item.get("year", "")).strip()
+        url = (item.get("url") or "").strip()
+        if not year_str or not url:
+            continue
+        try:
+            year = int(year_str)
+        except Exception:
+            continue
+        dest = build_report_path(bank, year)
+        try:
+            if url.lower().startswith("http://") or url.lower().startswith("https://"):
+                download_file(url, dest)
+            else:
+                # treat as local file path
+                if os.path.exists(url):
+                    ensure_directory(os.path.dirname(dest))
+                    shutil.copyfile(url, dest)
+                else:
+                    logger.warning("Local path not found: %s", url)
+                    continue
+            saved.append({"year": str(year), "path": dest})
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Failed to ingest %s %s: %s", bank, year, exc)
+    update_index()
+    return {"reports": saved}
 
 

@@ -6,3 +6,4 @@ pandas
 Pillow
 rapidfuzz
 Unidecode
+flask-cors

@@ -1,0 +1,5 @@
+bank_name,report_year,metric_name,value,raw_value,value_units,value_currency,value_kind,source_page,source_term_used,source_coordinates,snippet_path,is_validated
+nab,,net_interest_income,16757.0,"16,757",,,amount,114,Net interest income,"{'term_bbox': {'x0': 62.362, 'top': 143.58977000000004, 'x1': 132.78850000000003, 'bottom': 150.83977000000004}}",backend/qc_snippets/NAB_FY24_Annual_Report_net_interest_income.png,False
+nab,,operating_income,20646.0,"20,646",,,amount,115,Operating income,"{'term_bbox': {'x0': 63.232749999999996, 'top': 169.10177, 'x1': 128.30155075000002, 'bottom': 176.35177}}",backend/qc_snippets/NAB_FY24_Annual_Report_operating_income.png,False
+nab,,total_assets,1080248.0,"1,080,248",,,amount,116,Total assets,"{'term_bbox': {'x0': 62.362, 'top': 345.48777, 'x1': 106.96405075, 'bottom': 352.73777}}",backend/qc_snippets/NAB_FY24_Annual_Report_total_assets.png,False
+nab,,total_liabilities,2024000000.0,2024,millions,USD,amount,116,Total liabilities,"{'term_bbox': {'x0': 311.8107, 'top': 202.9283700000001, 'x1': 366.5627, 'bottom': 210.9283700000001}}",backend/qc_snippets/NAB_FY24_Annual_Report_total_liabilities.png,False

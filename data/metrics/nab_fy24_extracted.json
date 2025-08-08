@@ -1,0 +1,30 @@
+{
+  "source_pdf": "data/downloads/NAB_FY24_Annual_Report.pdf",
+  "bank": null,
+  "year": null,
+  "extracted_at": "2025-08-08T19:28:58.995754Z",
+  "kpis": {
+    "net_interest_income": {
+      "value": "16,757 16,807 14,840 13,793 13,877",
+      "page": 114,
+      "bbox": [
+        342.679,
+        143.58977000000004,
+        544.31625,
+        150.83977000000004
+      ],
+      "label_bbox": [
+        62.362,
+        143.58977000000004,
+        132.78850000000003,
+        150.83977000000004
+      ]
+    },
+    "net_profit_after_tax": {
+      "value": null,
+      "page": null,
+      "bbox": null,
+      "label_bbox": null
+    }
+  }
+}

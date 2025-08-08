@@ -178,6 +178,99 @@
     container.appendChild(output);
     main.prepend(container);
   }
+
+  // Manage Reports Panel (requires backend running at 127.0.0.1:5000)
+  async function fetchJSON(url, opts){
+    const res = await fetch(url, opts);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    return await res.json();
+  }
+
+  async function refreshBanks(){
+    const select = document.getElementById('mr-bank');
+    if (!select) return;
+    try {
+      const data = await fetchJSON('http://127.0.0.1:5000/api/banks');
+      select.innerHTML = '';
+      for (const b of data.banks){
+        const opt = document.createElement('option');
+        opt.value = b.code;
+        opt.textContent = `${b.code.toUpperCase()} – ${b.name} (${b.country})`;
+        select.appendChild(opt);
+      }
+    } catch (e){ /* backend may be offline */ }
+  }
+
+  async function refreshIndex(){
+    const container = document.getElementById('mr-index');
+    if (!container) return;
+    container.textContent = 'Loading index...';
+    try {
+      const idx = await fetchJSON('http://127.0.0.1:5000/api/index');
+      const lines = [];
+      for (const bank of Object.keys(idx)){
+        lines.push(`Bank: ${bank}`);
+        for (const r of idx[bank].reports){
+          lines.push(`  - FY${r.year}: ${r.path}`);
+        }
+      }
+      container.textContent = lines.join('\n') || 'No reports found yet.';
+    } catch (e){ container.textContent = 'Backend not reachable.'; }
+  }
+
+  async function uploadReport(){
+    const bank = document.getElementById('mr-bank')?.value;
+    const year = document.getElementById('mr-year')?.value;
+    const file = document.getElementById('mr-file')?.files?.[0];
+    if (!bank || !year || !file) { alert('Select bank, year, and a PDF file.'); return; }
+    const form = new FormData();
+    form.append('bank', bank);
+    form.append('year', year);
+    form.append('file', file);
+    await fetchJSON('http://127.0.0.1:5000/api/upload', { method: 'POST', body: form });
+    await refreshIndex();
+  }
+
+  async function collectSelected(){
+    const bank = document.getElementById('mr-bank')?.value;
+    if (!bank) return;
+    await fetchJSON('http://127.0.0.1:5000/api/collect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bank, years: 6 })
+    });
+    await refreshIndex();
+  }
+
+  async function collectAll(){
+    const select = document.getElementById('mr-bank');
+    if (!select) return;
+    // Collect all banks visible in dropdown
+    const banks = Array.from(select.options).map(o => o.value);
+    if (banks.length === 0) return;
+    await fetchJSON('http://127.0.0.1:5000/api/collect_all', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ banks, years: 6 })
+    });
+    await refreshIndex();
+  }
+
+  function wireManageReports(){
+    const uploadBtn = document.getElementById('mr-upload');
+    const refreshBtn = document.getElementById('mr-refresh-index');
+    const collectSelBtn = document.getElementById('mr-collect-selected');
+    const collectAllBtn = document.getElementById('mr-collect-all');
+    if (uploadBtn) uploadBtn.addEventListener('click', uploadReport);
+    if (refreshBtn) refreshBtn.addEventListener('click', refreshIndex);
+    if (collectSelBtn) collectSelBtn.addEventListener('click', collectSelected);
+    if (collectAllBtn) collectAllBtn.addEventListener('click', collectAll);
+  }
+
+  // Initialize panel
+  refreshBanks();
+  refreshIndex();
+  wireManageReports();
 })();
 
 
