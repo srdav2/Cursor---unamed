@@ -9,7 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from scraper import ensure_directory, extract_year_candidates
+from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
+import pdfplumber
 import shutil
 
 
@@ -204,6 +205,79 @@ def download_file(url: str, dest_path: str) -> str:
     return dest_path
 
 
+def _read_pdf_text_head(pdf_path: str, max_pages: int = 10) -> str:
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            texts = []
+            for i, page in enumerate(pdf.pages[:max_pages]):
+                t = page.extract_text() or ""
+                texts.append(t)
+            return "\n".join(texts)
+    except Exception:
+        return ""
+
+
+def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> bool:
+    text = _read_pdf_text_head(pdf_path, max_pages=8).lower()
+    if not text:
+        return False
+
+    signals = 0
+    # 1) Generic annual-report signals
+    if any(k in text for k in [
+        "annual report", "annual report and accounts", "annual review", "form 10-k",
+        "consolidated financial statements", "financial statements", "statement of financial position",
+        "income statement", "statement of comprehensive income", "statement of cash flows",
+        "independent auditor", "auditor's report"
+    ]):
+        signals += 1
+
+    # 2) Bank name/token hint
+    if bank and bank.lower() in BANK_REGISTRY:
+        name = (BANK_REGISTRY[bank.lower()].get("name") or "").lower()
+        code = bank.lower()
+        if name and name.split(" ")[0] in text:
+            signals += 1
+        if code in text:
+            signals += 1
+
+    # 3) Year hint
+    if year and (str(year) in text or f"fy{str(year)[-2:]}" in text):
+        signals += 1
+
+    # 4) Regulator hints for 10-K style
+    if "securities and exchange commission" in text or "washington, d.c." in text:
+        signals += 1
+
+    return signals >= 2
+
+
+def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[str]:
+    tmp_path = dest_path + ".tmp"
+    try:
+        download_file(url, tmp_path)
+        if is_likely_financial_report(tmp_path, bank, year):
+            ensure_directory(os.path.dirname(dest_path))
+            try:
+                os.replace(tmp_path, dest_path)
+            except OSError:
+                shutil.copyfile(tmp_path, dest_path)
+            return dest_path
+        else:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+            return None
+    except Exception:
+        try:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+        except OSError:
+            pass
+        return None
+
+
 def build_report_path(bank: str, year: int) -> str:
     directory = os.path.join("data", "reports", bank.lower())
     ensure_directory(directory)
@@ -267,11 +341,11 @@ def collect_bank_reports(bank: str, years: int = 6) -> Dict[str, List[Dict[str, 
     saved: List[Dict[str, str]] = []
     for year, url, _label in chosen:
         dest = build_report_path(bank, year)
-        try:
-            download_file(url, dest)
-            saved.append({"year": str(year), "path": dest})
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Failed downloading %s %s: %s", bank, year, exc)
+        path = download_and_validate(url, dest, bank, year)
+        if path:
+            saved.append({"year": str(year), "path": path})
+        else:
+            logger.warning("Rejected non-financial PDF for %s %s: %s", bank, year, url)
     return {"reports": saved}
 
 
@@ -303,12 +377,21 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
         dest = build_report_path(bank, year)
         try:
             if url.lower().startswith("http://") or url.lower().startswith("https://"):
-                download_file(url, dest)
+                path = download_and_validate(url, dest, bank, year)
+                if not path:
+                    continue
             else:
                 # treat as local file path
                 if os.path.exists(url):
                     ensure_directory(os.path.dirname(dest))
                     shutil.copyfile(url, dest)
+                    # validate local file; delete if not a financial report
+                    if not is_likely_financial_report(dest, bank, year):
+                        try:
+                            os.remove(dest)
+                        except OSError:
+                            pass
+                        continue
                 else:
                     logger.warning("Local path not found: %s", url)
                     continue
@@ -349,7 +432,8 @@ def cleanup_reports() -> Dict[str, List[str]]:
                 size = os.path.getsize(abs_path)
             except OSError:
                 size = 0
-            if size == 0 or not (min_year <= year <= max_year):
+            # delete zero-byte, out-of-range, and non-financial PDFs
+            if size == 0 or not (min_year <= year <= max_year) or not is_likely_financial_report(abs_path, bank, year):
                 try:
                     os.remove(abs_path)
                     removed.append(abs_path)
@@ -395,7 +479,10 @@ def migrate_existing() -> Dict[str, List[str]]:
         try:
             ensure_directory(os.path.dirname(dest))
             shutil.copyfile(src, dest)
-            moved.append(dest)
+            if is_likely_financial_report(dest, bank_hit, year):
+                moved.append(dest)
+            else:
+                os.remove(dest)
         except OSError:
             pass
     update_index()
