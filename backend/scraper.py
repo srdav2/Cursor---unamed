@@ -58,6 +58,11 @@ FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
         "value_kind": "amount",
     },
     {
+        "standard_name": "operating_expenses",
+        "search_terms": ["Operating expenses", "Total operating expenses", "Expenses"],
+        "value_kind": "amount",
+    },
+    {
         "standard_name": "net_profit_after_tax",
         "search_terms": [
             "Net profit after tax",
@@ -76,12 +81,57 @@ FINANCIAL_SCHEMA: List[Dict[str, Any]] = [
         "value_kind": "amount",
     },
     {
+        "standard_name": "total_equity",
+        "search_terms": ["Total equity", "Shareholders' equity", "Equity attributable to"],
+        "value_kind": "amount",
+    },
+    {
+        "standard_name": "customer_deposits",
+        "search_terms": ["Customer deposits", "Deposits from customers"],
+        "value_kind": "amount",
+    },
+    {
+        "standard_name": "loans_and_advances",
+        "search_terms": ["Loans and advances", "Net loans", "Gross loans and advances"],
+        "value_kind": "amount",
+    },
+    {
         "standard_name": "net_cash_from_operating",
         "search_terms": [
             "Net cash from operating activities",
             "Net cash provided by operating activities",
         ],
         "value_kind": "amount",
+    },
+    {
+        "standard_name": "nim",
+        "search_terms": ["Net interest margin", "NIM"],
+        "value_kind": "ratio",
+    },
+    {
+        "standard_name": "cost_income_ratio",
+        "search_terms": ["Cost to income ratio", "Cost/income ratio"],
+        "value_kind": "ratio",
+    },
+    {
+        "standard_name": "roe",
+        "search_terms": ["Return on equity", "ROE"],
+        "value_kind": "ratio",
+    },
+    {
+        "standard_name": "roa",
+        "search_terms": ["Return on assets", "ROA"],
+        "value_kind": "ratio",
+    },
+    {
+        "standard_name": "cet1_ratio",
+        "search_terms": ["CET1 ratio", "Common Equity Tier 1 ratio"],
+        "value_kind": "ratio",
+    },
+    {
+        "standard_name": "lcr",
+        "search_terms": ["Liquidity coverage ratio", "LCR"],
+        "value_kind": "ratio",
     },
 ]
 
