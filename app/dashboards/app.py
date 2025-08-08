@@ -17,16 +17,17 @@ import plotly.express as px
 def create_app() -> Dash:
     app = Dash(__name__)
 
-    # Dummy data for scaffold
-    df = pd.DataFrame({
-        "category": ["Revenue", "Expenses", "Profit"],
-        "amount": [100, 70, 30],
-    })
+        # Load data from SQLite
+    from app.storage.db import connect, fetch_metrics_dataframe
+    conn = connect()
+    df = fetch_metrics_dataframe(conn)
+    if df.empty:
+        df = pd.DataFrame({"category": [], "amount": []})
 
-    fig = px.bar(df, x="category", y="amount", title="Example Financial Summary")
+    fig = px.bar(df, x="category", y="amount", title="Financial Metrics (SQLite)")
 
     app.layout = html.Div([
-        html.H2("Financial Analysis Dashboard (Scaffold)"),
+        html.H2("Financial Analysis Dashboard"),
         dcc.Graph(figure=fig),
     ])
 
