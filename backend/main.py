@@ -3,7 +3,7 @@ from flask_cors import CORS
 from pathlib import Path
 
 from scraper import extract_financial_data, FINANCIAL_SCHEMA, BANK_REGISTRY
-from collector import collect_bank_reports, collect_all, collect_from_urls, update_index
+from collector import collect_bank_reports, collect_all, collect_from_urls, update_index, cleanup_reports, migrate_existing
 
 app = Flask(__name__)
 CORS(app)
@@ -130,6 +130,16 @@ def api_upload():
     file.save(dest)
     update_index()
     return jsonify({"bank": bank, "year": year, "path": dest})
+
+
+@app.route('/api/maintenance/cleanup', methods=['POST'])
+def api_cleanup():
+    return jsonify(cleanup_reports())
+
+
+@app.route('/api/maintenance/migrate', methods=['POST'])
+def api_migrate():
+    return jsonify(migrate_existing())
 
 if __name__ == '__main__':
     # Runs the server on port 5000

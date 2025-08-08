@@ -14,6 +14,10 @@ import shutil
 
 
 logger = logging.getLogger(__name__)
+def _year_bounds() -> Tuple[int, int]:
+    current_year = datetime.utcnow().year
+    return 2015, current_year + 1
+
 
 
 # Map bank codes to likely investor relations pages that list annual reports.
@@ -174,9 +178,7 @@ def discover_annual_reports(bank: str) -> List[Tuple[int, str, str]]:
 
 def choose_latest_n_years(candidates: List[Tuple[int, str, str]], n: int = 6) -> List[Tuple[int, str, str]]:
     # Filter to a sensible FY window (e.g., 2015..current_year+1)
-    current_year = datetime.utcnow().year
-    min_year = 2015
-    max_year = current_year + 1
+    min_year, max_year = _year_bounds()
     filtered = [(y, u, l) for (y, u, l) in candidates if min_year <= y <= max_year]
     # Sort by year desc and pick top distinct years
     seen: set[int] = set()
@@ -233,6 +235,14 @@ def update_index(index_path: str = "data/index.json") -> Dict[str, Dict[str, Lis
                 size = os.path.getsize(abs_path)
             except OSError:
                 size = 0
+            # Skip out-of-range years to avoid garbage like FY2059
+            try:
+                y = int(year)
+                min_year, max_year = _year_bounds()
+                if not (min_year <= y <= max_year):
+                    continue
+            except Exception:
+                continue
             entries.append({
                 "year": year,
                 "path": file_path,
@@ -307,5 +317,88 @@ def collect_from_urls(bank: str, items: List[Dict[str, str]]) -> Dict[str, List[
             logger.warning("Failed to ingest %s %s: %s", bank, year, exc)
     update_index()
     return {"reports": saved}
+
+
+def cleanup_reports() -> Dict[str, List[str]]:
+    """Remove zero-byte and out-of-range year files from data/reports to fix mislabels."""
+    base_dir = os.path.join("data", "reports")
+    removed: List[str] = []
+    if not os.path.exists(base_dir):
+        return {"removed": removed}
+    min_year, max_year = _year_bounds()
+    for bank in os.listdir(base_dir):
+        bank_dir = os.path.join(base_dir, bank)
+        if not os.path.isdir(bank_dir):
+            continue
+        for fname in os.listdir(bank_dir):
+            if not fname.lower().endswith('.pdf'):
+                continue
+            m = re.match(rf"{re.escape(bank)}_FY(\d+)_Annual_Report\.pdf$", fname, re.IGNORECASE)
+            if not m:
+                # non-conforming name; remove
+                try:
+                    os.remove(os.path.join(bank_dir, fname))
+                    removed.append(os.path.join(bank_dir, fname))
+                except OSError:
+                    pass
+                continue
+            year = int(m.group(1))
+            abs_path = os.path.join(bank_dir, fname)
+            size = 0
+            try:
+                size = os.path.getsize(abs_path)
+            except OSError:
+                size = 0
+            if size == 0 or not (min_year <= year <= max_year):
+                try:
+                    os.remove(abs_path)
+                    removed.append(abs_path)
+                except OSError:
+                    pass
+    update_index()
+    return {"removed": removed}
+
+
+def migrate_existing() -> Dict[str, List[str]]:
+    """
+    Migrate any PDFs under data/downloads/ to standardized naming if we can infer bank+year.
+    Recognizes FY\d{2} (assumes 20xx) or 20\d{2} in filename; bank inferred by code substring.
+    """
+    moved: List[str] = []
+    downloads = os.path.join('data', 'downloads')
+    if not os.path.exists(downloads):
+        return {"moved": moved}
+    bank_codes = list(BANK_SOURCES.keys())
+    for fname in os.listdir(downloads):
+        if not fname.lower().endswith('.pdf'):
+            continue
+        lower = fname.lower()
+        bank_hit = next((b for b in bank_codes if f"{b}" in lower), None)
+        if not bank_hit:
+            continue
+        # year guess
+        m4 = re.search(r"(20\d{2})", fname)
+        year = None
+        if m4:
+            year = int(m4.group(1))
+        else:
+            m2 = re.search(r"fy(\d{2})", lower)
+            if m2:
+                year = 2000 + int(m2.group(1))
+        if not year:
+            continue
+        min_year, max_year = _year_bounds()
+        if not (min_year <= year <= max_year):
+            continue
+        src = os.path.join(downloads, fname)
+        dest = build_report_path(bank_hit, year)
+        try:
+            ensure_directory(os.path.dirname(dest))
+            shutil.copyfile(src, dest)
+            moved.append(dest)
+        except OSError:
+            pass
+    update_index()
+    return {"moved": moved}
 
 

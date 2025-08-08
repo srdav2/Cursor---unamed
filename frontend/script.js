@@ -209,20 +209,80 @@
   }
 
   async function refreshIndex(){
-    const container = document.getElementById('mr-index');
-    if (!container) return;
-    container.textContent = 'Loading index...';
+    const rawContainer = document.getElementById('mr-index');
+    const tableContainer = document.getElementById('mr-index-table');
+    if (rawContainer) rawContainer.textContent = 'Loading index...';
+    if (tableContainer) tableContainer.textContent = 'Loading...';
     try {
       const idx = await fetchJSON(`${backend.base}/api/index`);
-      const lines = [];
-      for (const bank of Object.keys(idx)){
-        lines.push(`Bank: ${bank}`);
-        for (const r of idx[bank].reports){
-          const sizeInfo = (r.size_bytes && r.size_bytes > 0) ? ` (${(r.size_bytes/1024/1024).toFixed(2)} MB)` : ' (not downloaded)';
-          lines.push(`  - FY${r.year}: ${r.path}${sizeInfo}`);
+      // raw debug
+      if (rawContainer){
+        const lines = [];
+        for (const bank of Object.keys(idx)){
+          lines.push(`Bank: ${bank}`);
+          for (const r of idx[bank].reports){
+            const sizeInfo = (r.size_bytes && r.size_bytes > 0) ? ` (${(r.size_bytes/1024/1024).toFixed(2)} MB)` : ' (not downloaded)';
+            lines.push(`  - FY${r.year}: ${r.path}${sizeInfo}`);
+          }
         }
+        rawContainer.textContent = lines.join('\n') || 'No reports found yet.';
       }
-      container.textContent = lines.join('\n') || 'No reports found yet.';
+
+      // years set from min..max in index
+      const yearsSet = new Set();
+      Object.values(idx).forEach((entry) => {
+        entry.reports.forEach(r => yearsSet.add(parseInt(r.year, 10)));
+      });
+      const years = Array.from(yearsSet).sort((a,b)=>a-b);
+      const banks = Object.keys(idx).sort();
+
+      // build table
+      if (tableContainer){
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontSize = '13px';
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        const th0 = document.createElement('th'); th0.textContent = 'Bank'; trh.appendChild(th0);
+        years.forEach(y => { const th = document.createElement('th'); th.textContent = `FY${y}`; trh.appendChild(th); });
+        thead.appendChild(trh);
+        const tbody = document.createElement('tbody');
+
+        function cell(content, downloaded){
+          const td = document.createElement('td');
+          td.style.border = '1px solid #e0e0e0';
+          td.style.textAlign = 'center';
+          td.style.padding = '4px 6px';
+          td.textContent = content;
+          if (downloaded === true) td.style.color = '#0b7a0b';
+          if (downloaded === false) td.style.color = '#b00020';
+          return td;
+        }
+
+        banks.forEach(b => {
+          const tr = document.createElement('tr');
+          const name = document.createElement('td');
+          name.textContent = b.toUpperCase();
+          name.style.border = '1px solid #e0e0e0';
+          name.style.fontWeight = '600';
+          name.style.padding = '4px 6px';
+          tr.appendChild(name);
+          years.forEach(y => {
+            const hit = (idx[b]?.reports || []).find(r => parseInt(r.year,10) === y);
+            if (!hit) tr.appendChild(cell('×', false));
+            else {
+              const downloaded = !!(hit.size_bytes && hit.size_bytes > 0);
+              tr.appendChild(cell(downloaded ? '✓' : '×', downloaded));
+            }
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        tableContainer.innerHTML = '';
+        tableContainer.appendChild(table);
+      }
     } catch (e){ container.textContent = 'Backend not reachable. Start it via backend/Run Backend.command'; }
   }
 
@@ -278,10 +338,15 @@
     const refreshBtn = document.getElementById('mr-refresh-index');
     const collectSelBtn = document.getElementById('mr-collect-selected');
     const collectAllBtn = document.getElementById('mr-collect-all');
+    // Maintenance helpers (hidden behind debug toggle could be added later)
+    async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed.'); } }
+    async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed.'); } }
     if (uploadBtn) uploadBtn.addEventListener('click', uploadReport);
     if (refreshBtn) refreshBtn.addEventListener('click', refreshIndex);
     if (collectSelBtn) collectSelBtn.addEventListener('click', collectSelected);
     if (collectAllBtn) collectAllBtn.addEventListener('click', collectAll);
+    // Expose for console/advanced users
+    window.__MR = { cleanup, migrate };
   }
 
   // Initialize panel
