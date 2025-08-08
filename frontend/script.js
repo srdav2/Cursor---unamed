@@ -130,7 +130,7 @@
     container.style.marginBottom = '1rem';
 
     const title = document.createElement('h2');
-    title.textContent = 'Client-side PDF Extraction (No Server)';
+    title.textContent = 'Client-side PDF Extraction with QC (No Server)';
 
     const desc = document.createElement('p');
     desc.textContent = 'Load a local annual report PDF and extract sample metrics in-browser.';
@@ -145,13 +145,69 @@
     extractBtn.className = 'button';
     extractBtn.style.marginLeft = '0.5rem';
 
-    const output = document.createElement('pre');
-    output.style.whiteSpace = 'pre-wrap';
+    const output = document.createElement('div');
     output.style.fontSize = '12px';
     output.style.background = '#f6f6f6';
     output.style.padding = '8px';
     output.style.borderRadius = '6px';
     output.style.border = '1px solid #e0e0e0';
+
+    function renderResults(res){
+      const { items = [], sanity = [] } = res || {};
+      const wrapper = document.createElement('div');
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.borderCollapse = 'collapse';
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Metric</th><th>Value</th><th>Units</th><th>Currency</th><th>Page</th><th>Confidence</th><th>Flags</th><th>Context</th></tr>';
+      const tbody = document.createElement('tbody');
+      for (const it of items){
+        const tr = document.createElement('tr');
+        function td(txt){ const c = document.createElement('td'); c.style.border = '1px solid #e0e0e0'; c.style.padding = '4px 6px'; c.textContent = txt; return c; }
+        tr.appendChild(td(it.metric_name));
+        tr.appendChild(td(it.value != null ? String(it.value) : ''));
+        tr.appendChild(td(it.value_units || ''));
+        tr.appendChild(td(it.value_currency || ''));
+        tr.appendChild(td(String(it.source_page)));
+        const conf = document.createElement('td');
+        conf.style.border = '1px solid #e0e0e0';
+        conf.style.padding = '4px 6px';
+        conf.textContent = (Math.round((it.confidence ?? 0)*100)) + '%';
+        tr.appendChild(conf);
+        const flags = document.createElement('td');
+        flags.style.border = '1px solid #e0e0e0';
+        flags.style.padding = '4px 6px';
+        flags.textContent = (it.flags||[]).join(', ');
+        tr.appendChild(flags);
+        const ctx = document.createElement('td');
+        ctx.style.border = '1px solid #e0e0e0';
+        ctx.style.padding = '4px 6px';
+        const btn = document.createElement('button');
+        btn.className = 'button';
+        btn.textContent = 'View context';
+        btn.addEventListener('click', () => {
+          alert(['Prev: ' + (it.context_prev_line||''), 'Line: ' + (it.context_line||''), 'Next: ' + (it.context_next_line||'')].join('\n'));
+        });
+        ctx.appendChild(btn);
+        tr.appendChild(ctx);
+        tbody.appendChild(tr);
+      }
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      if (sanity.length){
+        const warn = document.createElement('div');
+        warn.style.marginTop = '8px';
+        warn.style.padding = '6px 8px';
+        warn.style.background = '#fff7e6';
+        warn.style.border = '1px solid #ffe58f';
+        warn.style.borderRadius = '6px';
+        warn.textContent = 'Sanity checks: ' + sanity.map(s => `${s.level}: ${s.message}`).join(' | ');
+        wrapper.appendChild(warn);
+      }
+      output.innerHTML = '';
+      output.appendChild(wrapper);
+    }
 
     extractBtn.addEventListener('click', async () => {
       const file = fileInput.files && fileInput.files[0];
@@ -161,8 +217,8 @@
       }
       output.textContent = 'Extracting...';
       try {
-        const items = await window.ClientSideExtractor.extractFromPdf(file);
-        output.textContent = JSON.stringify({ items }, null, 2);
+        const res = await window.ClientSideExtractor.extractFromPdf(file);
+        renderResults(res);
       } catch (err) {
         output.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
       }
@@ -190,6 +246,16 @@
     base: 'http://127.0.0.1:5000',
     async status(){
       try { return await fetchJSON(`${this.base}/api/status`); } catch (_) { return null; }
+    },
+    // Poll status a few times after load to handle slow starts
+    async waitUntilUp(timeoutMs = 15000){
+      const start = Date.now();
+      while (Date.now() - start < timeoutMs) {
+        const s = await this.status();
+        if (s) return true;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      return false;
     }
   };
 
@@ -354,7 +420,12 @@
 
   // Initialize panel
   (async () => {
-    const status = await backend.status();
+    let status = await backend.status();
+    if (!status) {
+      // give backend a short grace period
+      await backend.waitUntilUp(20000);
+      status = await backend.status();
+    }
     const pill = document.getElementById('backend-status-pill');
     if (status) {
       if (pill){ pill.textContent = 'Backend: Connected'; pill.style.background = '#0b7a0b'; }
