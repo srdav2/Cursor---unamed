@@ -1,0 +1,33 @@
+{
+  "analysis_timestamp": "2025-08-09T13:32:35.822868",
+  "local_analysis": {
+    "source": "data/downloads/NAB_FY24_Annual_Report.pdf",
+    "analysis_timestamp": "2025-08-09T13:32:35.821990",
+    "text_length": 10000,
+    "extracted_metrics": {},
+    "confidence_scores": {},
+    "recommendations": [
+      "Low confidence in extracted data - consider manual review",
+      "Document may not be a standard financial statement",
+      "Try using external data sources for comparison",
+      "Limited metrics found - document may be incomplete",
+      "Consider using table parsing for better results",
+      "Use SEC EDGAR for US companies",
+      "Use ASX for Australian companies",
+      "Consider commercial data providers for bulk access"
+    ],
+    "overall_confidence": 0.0
+  },
+  "external_sources": {
+    "sec_edgar": "Available for US companies",
+    "asx": "Available for Australian companies",
+    "other_sources": "World Bank, IMF, BIS data available"
+  },
+  "recommendations": [
+    "Use local PDF analysis for immediate insights",
+    "Cross-reference with external sources for validation",
+    "Build automated data collection from official sources",
+    "Consider commercial solutions for enterprise use",
+    "Implement quality control and validation workflows"
+  ]
+}
