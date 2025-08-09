@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Financial Analytics Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>Bank Financial Analytics</h1>
+                <p class="subtitle">Comprehensive Financial Analysis & Insights</p>
+            </div>
+            <div class="header-right">
+                <div class="bank-selector">
+                    <select id="bankSelect" class="select-styled">
+                        <option value="">Select Bank</option>
+                        <option value="cba">Commonwealth Bank of Australia</option>
+                        <option value="nab">National Australia Bank</option>
+                        <option value="wbc">Westpac Banking Corporation</option>
+                        <option value="anz">ANZ Banking Group</option>
+                    </select>
+                </div>
+                <div class="year-selector">
+                    <select id="yearSelect" class="select-styled">
+                        <option value="">Select Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="dashboard-nav">
+            <button class="nav-tab active" data-tab="overview">Overview</button>
+            <button class="nav-tab" data-tab="profitability">Profitability</button>
+            <button class="nav-tab" data-tab="risk">Risk & Capital</button>
+            <button class="nav-tab" data-tab="liquidity">Liquidity</button>
+            <button class="nav-tab" data-tab="efficiency">Efficiency</button>
+            <button class="nav-tab" data-tab="comparison">Peer Comparison</button>
+            <button class="nav-tab" data-tab="trends">Trends & Forecasts</button>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card primary">
+                        <div class="metric-header">
+                            <h3>Net Interest Income</h3>
+                            <span class="metric-change positive">+12.5%</span>
+                        </div>
+                        <div class="metric-value">$24.8B</div>
+                        <div class="metric-chart">
+                            <canvas id="niiChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Net Profit After Tax</h3>
+                            <span class="metric-change positive">+8.3%</span>
+                        </div>
+                        <div class="metric-value">$9.2B</div>
+                        <div class="metric-chart">
+                            <canvas id="npatChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Return on Equity</h3>
+                            <span class="metric-change positive">+2.1%</span>
+                        </div>
+                        <div class="metric-value">14.2%</div>
+                        <div class="metric-chart">
+                            <canvas id="roeChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>CET1 Ratio</h3>
+                            <span class="metric-change positive">+0.3%</span>
+                        </div>
+                        <div class="metric-value">12.8%</div>
+                        <div class="metric-chart">
+                            <canvas id="cet1Chart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Financial Performance Overview</h3>
+                        <canvas id="performanceChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Asset Composition</h3>
+                        <canvas id="assetCompositionChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profitability Tab -->
+            <div id="profitability" class="tab-content">
+                <div class="section-header">
+                    <h2>Profitability Analysis</h2>
+                    <p>Comprehensive analysis of revenue streams, margins, and profitability drivers</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Net Interest Margin</h3>
+                        <div class="metric-value">2.15%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+0.08% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Cost-to-Income Ratio</h3>
+                        <div class="metric-value">45.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↘</span>
+                            <span class="trend-text">-1.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Operating Leverage</h3>
+                        <div class="metric-value">1.15x</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+0.05x vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Revenue Breakdown</h3>
+                        <canvas id="revenueBreakdownChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Margin Trends</h3>
+                        <canvas id="marginTrendsChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk & Capital Tab -->
+            <div id="risk" class="tab-content">
+                <div class="section-header">
+                    <h2>Risk & Capital Management</h2>
+                    <p>Capital adequacy, risk metrics, and regulatory compliance</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card warning">
+                        <h3>CET1 Ratio</h3>
+                        <div class="metric-value">12.8%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 85%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory: 10.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Liquidity Coverage Ratio</h3>
+                        <div class="metric-value">125%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory: 100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Non-Performing Loans</h3>
+                        <div class="metric-value">0.85%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↗</span>
+                            <span class="trend-text">+0.12% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Capital Structure</h3>
+                        <canvas id="capitalStructureChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Risk Metrics</h3>
+                        <canvas id="riskMetricsChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liquidity Tab -->
+            <div id="liquidity" class="tab-content">
+                <div class="section-header">
+                    <h2>Liquidity Management</h2>
+                    <p>Liquidity ratios, funding sources, and cash flow analysis</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Loan-to-Deposit Ratio</h3>
+                        <div class="metric-value">85.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-2.1% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Wholesale Funding</h3>
+                        <div class="metric-value">15.8%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↗</span>
+                            <span class="trend-text">+1.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Liquid Assets</h3>
+                        <div class="metric-value">$45.2B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+8.5% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Funding Sources</h3>
+                        <canvas id="fundingSourcesChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Liquidity Coverage</h3>
+                        <canvas id="liquidityCoverageChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Efficiency Tab -->
+            <div id="efficiency" class="tab-content">
+                <div class="section-header">
+                    <h2>Operational Efficiency</h2>
+                    <p>Cost management, productivity metrics, and operational performance</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Cost-to-Income Ratio</h3>
+                        <div class="metric-value">45.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-1.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Revenue per Employee</h3>
+                        <div class="metric-value">$485K</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+5.8% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Digital Adoption</h3>
+                        <div class="metric-value">78.5%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+12.3% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Efficiency Trends</h3>
+                        <canvas id="efficiencyTrendsChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Cost Structure</h3>
+                        <canvas id="costStructureChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peer Comparison Tab -->
+            <div id="comparison" class="tab-content">
+                <div class="section-header">
+                    <h2>Peer Comparison</h2>
+                    <p>Benchmarking against industry peers and competitors</p>
+                </div>
+                
+                <div class="comparison-controls">
+                    <div class="comparison-selector">
+                        <label>Compare with:</label>
+                        <select id="peerSelect" multiple class="select-styled">
+                            <option value="cba">CBA</option>
+                            <option value="nab">NAB</option>
+                            <option value="wbc">Westpac</option>
+                            <option value="anz">ANZ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Peer Comparison - Key Metrics</h3>
+                        <canvas id="peerComparisonChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Market Position</h3>
+                        <canvas id="marketPositionChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends & Forecasts Tab -->
+            <div id="trends" class="tab-content">
+                <div class="section-header">
+                    <h2>Trends & Forecasts</h2>
+                    <p>Historical trends, projections, and forward-looking analysis</p>
+                </div>
+                
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Historical Performance Trends</h3>
+                        <canvas id="historicalTrendsChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Forecast Projections</h3>
+                        <canvas id="forecastChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
