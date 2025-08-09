@@ -4,13 +4,39 @@ import os
 import re
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
-
-import requests
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
-import pdfplumber
+# Try to import optional dependencies
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+    requests = None
+
+try:
+    from bs4 import BeautifulSoup
+    BEAUTIFULSOUP_AVAILABLE = True
+except ImportError:
+    BEAUTIFULSOUP_AVAILABLE = False
+    BeautifulSoup = None
+
+try:
+    from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
+    SCRAPER_AVAILABLE = True
+except ImportError:
+    SCRAPER_AVAILABLE = False
+    ensure_directory = lambda x: None
+    extract_year_candidates = lambda x: []
+    BANK_REGISTRY = {}
+
+try:
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
+except ImportError:
+    PDFPLUMBER_AVAILABLE = False
+    pdfplumber = None
+
 import shutil
 
 # Import AI classifier
@@ -116,7 +142,11 @@ def load_bank_sources() -> Dict[str, List[str]]:
     return DEFAULT_BANK_SOURCES
 
 
-def http_get(url: str, timeout: int = 30) -> requests.Response:
+def http_get(url: str, timeout: int = 30):
+    """HTTP GET request with optional dependency handling."""
+    if not REQUESTS_AVAILABLE:
+        raise ImportError("requests module not available")
+    
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -129,6 +159,10 @@ def http_get(url: str, timeout: int = 30) -> requests.Response:
 
 
 def extract_pdf_links_from_html(html: str, base_url: str) -> List[Tuple[str, str]]:
+    """Extract PDF links from HTML content."""
+    if not BEAUTIFULSOUP_AVAILABLE:
+        return []
+    
     soup = BeautifulSoup(html, "html.parser")
     out: List[Tuple[str, str]] = []
     for a in soup.find_all("a", href=True):

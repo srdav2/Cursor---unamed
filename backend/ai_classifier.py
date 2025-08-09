@@ -5,8 +5,20 @@ import re
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 
-import requests
-import pdfplumber
+# Try to import optional dependencies
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+    requests = None
+
+try:
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
+except ImportError:
+    PDFPLUMBER_AVAILABLE = False
+    pdfplumber = None
 
 # Try to import AI dependencies
 try:
@@ -162,6 +174,10 @@ class AnnualReportClassifier:
         Returns:
             Extracted text
         """
+        if not PDFPLUMBER_AVAILABLE:
+            logger.warning("pdfplumber not available. Cannot extract text from PDF.")
+            return ""
+            
         if max_chars is None:
             max_chars = self.config["classification_config"]["max_content_chars"]
             
