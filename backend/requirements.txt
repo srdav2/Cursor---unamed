@@ -7,3 +7,7 @@ Pillow
 rapidfuzz
 Unidecode
 flask-cors
+torch
+transformers
+accelerate
+sentencepiece
