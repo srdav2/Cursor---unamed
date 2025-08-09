@@ -1,0 +1,60 @@
+{
+    "model_config": {
+        "model_name": "meta-llama/Llama-2-7b-chat-hf",
+        "device": "auto",
+        "max_tokens": 50,
+        "temperature": 0.1,
+        "trust_remote_code": true,
+        "use_fast_tokenizer": false
+    },
+    "classification_config": {
+        "max_content_chars": 2000,
+        "max_pages_to_extract": 5,
+        "confidence_threshold": 60,
+        "fallback_enabled": true
+    },
+    "prompts": {
+        "classification_prompt": "<s>[INST] You are a financial document classifier. Your task is to determine if a document is an annual report or financial statement.\n\nDocument content (first 2000 characters):\n{content}\n\nBased on the content above, classify this document. Respond with ONLY one of the following:\n- \"ANNUAL_REPORT\" - if this is an annual report, financial statement, or similar comprehensive financial document\n- \"NOT_ANNUAL_REPORT\" - if this is not an annual report (e.g., quarterly report, presentation, press release, etc.)\n\nConsider these indicators for ANNUAL_REPORT:\n- Contains comprehensive financial statements\n- Mentions \"annual report\", \"financial statements\", \"consolidated statements\"\n- Contains balance sheet, income statement, cash flow statement\n- Has auditor's report or independent auditor section\n- Mentions \"for the year ended\" or similar annual period language\n- Contains comprehensive financial data and metrics\n\nConsider these indicators for NOT_ANNUAL_REPORT:\n- Quarterly or interim reports\n- Investor presentations\n- Press releases\n- Sustainability reports\n- Proxy statements\n- Fact sheets or brochures\n\nClassification: [/INST]",
+        "confidence_prompt": "<s>[INST] You are a financial document classifier. Rate your confidence (0-100) in classifying the following document as an annual report.\n\nDocument content (first 2000 characters):\n{content}\n\nRate your confidence from 0-100 where:\n- 0-30: Low confidence, document is unclear or ambiguous\n- 31-70: Medium confidence, some indicators present but not definitive\n- 71-100: High confidence, clear indicators of annual report or financial statement\n\nRespond with ONLY the number (0-100): [/INST]"
+    },
+    "fallback_indicators": {
+        "positive": [
+            "annual report",
+            "annual report and accounts",
+            "annual review",
+            "form 10-k",
+            "consolidated financial statements",
+            "financial statements",
+            "statement of financial position",
+            "balance sheet",
+            "income statement",
+            "statement of comprehensive income",
+            "statement of cash flows",
+            "cash flow statement",
+            "independent auditor",
+            "auditor's report",
+            "for the year ended"
+        ],
+        "negative": [
+            "interim",
+            "quarter",
+            "q1",
+            "q2",
+            "q3",
+            "q4",
+            "half-year",
+            "half year",
+            "trading update",
+            "presentation",
+            "investor presentation",
+            "press release",
+            "pillar 3",
+            "sustainability report",
+            "csr report",
+            "proxy statement",
+            "circular",
+            "md&a",
+            "factbook"
+        ]
+    }
+}

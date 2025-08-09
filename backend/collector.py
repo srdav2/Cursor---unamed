@@ -13,6 +13,15 @@ from scraper import ensure_directory, extract_year_candidates, BANK_REGISTRY
 import pdfplumber
 import shutil
 
+# Import AI classifier
+try:
+    from ai_classifier import classify_document, get_classifier
+    AI_CLASSIFIER_AVAILABLE = True
+except ImportError:
+    AI_CLASSIFIER_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("AI classifier not available. Falling back to heuristic classification.")
+
 
 logger = logging.getLogger(__name__)
 def _year_bounds() -> Tuple[int, int]:
@@ -231,7 +240,27 @@ def _read_pdf_text_head(pdf_path: str, max_pages: int = 10) -> str:
 
 
 def compute_financial_report_score(pdf_path: str, bank: Optional[str], year: Optional[int]) -> int:
-    """Heuristic scoring; higher is better for annual financial statements."""
+    """Enhanced scoring using AI classifier when available, falling back to heuristic scoring."""
+    
+    # Try AI classification first if available
+    if AI_CLASSIFIER_AVAILABLE:
+        try:
+            ai_result = classify_document(pdf_path)
+            if ai_result.get("is_annual_report", False):
+                # AI classified as annual report - return high score based on confidence
+                confidence = ai_result.get("confidence", 50)
+                # Convert confidence (0-100) to score (0-20)
+                ai_score = int((confidence / 100) * 20)
+                logger.info(f"AI classification: {ai_score}/20 (confidence: {confidence}%) for {pdf_path}")
+                return ai_score
+            else:
+                # AI classified as not annual report - return low score
+                logger.info(f"AI classification: 0/20 (not annual report) for {pdf_path}")
+                return 0
+        except Exception as e:
+            logger.warning(f"AI classification failed for {pdf_path}: {e}. Falling back to heuristic.")
+    
+    # Fallback to original heuristic scoring
     text = _read_pdf_text_head(pdf_path, max_pages=8).lower()
     if not text:
         return 0
@@ -281,7 +310,27 @@ def compute_financial_report_score(pdf_path: str, bank: Optional[str], year: Opt
 
 
 def is_likely_financial_report(pdf_path: str, bank: Optional[str], year: Optional[int]) -> bool:
-    return compute_financial_report_score(pdf_path, bank, year) >= 3
+    """Enhanced classification using AI when available."""
+    
+    # Try AI classification first if available
+    if AI_CLASSIFIER_AVAILABLE:
+        try:
+            ai_result = classify_document(pdf_path)
+            is_annual_report = ai_result.get("is_annual_report", False)
+            confidence = ai_result.get("confidence", 0)
+            
+            # Use AI result if confidence is high enough (>= 60%)
+            if confidence >= 60:
+                logger.info(f"AI classification result: {is_annual_report} (confidence: {confidence}%) for {pdf_path}")
+                return is_annual_report
+            else:
+                logger.info(f"AI confidence too low ({confidence}%), falling back to heuristic for {pdf_path}")
+        except Exception as e:
+            logger.warning(f"AI classification failed for {pdf_path}: {e}. Falling back to heuristic.")
+    
+    # Fallback to original heuristic threshold
+    score = compute_financial_report_score(pdf_path, bank, year)
+    return score >= 3
 
 
 def download_and_validate(url: str, dest_path: str, bank: Optional[str], year: Optional[int]) -> Optional[str]:
@@ -490,7 +539,7 @@ def migrate_existing() -> Dict[str, List[str]]:
     downloads = os.path.join('data', 'downloads')
     if not os.path.exists(downloads):
         return {"moved": moved}
-    bank_codes = list(BANK_SOURCES.keys())
+    bank_codes = list(BANK_REGISTRY.keys()) # Use BANK_REGISTRY for bank codes
     for fname in os.listdir(downloads):
         if not fname.lower().endswith('.pdf'):
             continue
