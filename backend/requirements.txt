@@ -7,5 +7,9 @@ Pillow
 rapidfuzz
 Unidecode
 flask-cors
-ollama
-
+openai
+python-dotenv
+torch
+transformers
+accelerate
+sentencepiece

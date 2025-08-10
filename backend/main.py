@@ -11,6 +11,13 @@ from collector import (
     validate_library
 )
 
+# Import AI classifier
+try:
+    from ai_classifier import classify_document, classify_batch, get_classifier
+    AI_CLASSIFIER_AVAILABLE = True
+except ImportError:
+    AI_CLASSIFIER_AVAILABLE = False
+
 app = Flask(__name__)
 # Relaxed CORS for file:// origin (shows as Origin: null)
 CORS(app, resources={r"/api/*": {"origins": ["*", "null"]}}, supports_credentials=False)
@@ -20,19 +27,22 @@ def status():
     return {"status": "Backend is running!"}
 
 
-@app.route('/api/validate', methods=['GET'])
-def api_validate():
-    """
-    Triggers a re-validation of all documents in the library and streams progress.
-    Accepts optional query param `?throttle_secs=2` and `?force=true`
-    """
+def _run_validation_stream(force_revalidate: bool):
     throttle_secs = int(request.args.get('throttle_secs') or 0)
-    force_revalidate = request.args.get('force', 'false').lower() == 'true'
     def generate():
         for event in validate_library(throttle_secs=throttle_secs, force_revalidate=force_revalidate):
             yield f"data: {json.dumps(event)}\n\n"
-    
     return Response(generate(), mimetype='text/event-stream')
+
+@app.route('/api/validate', methods=['GET'])
+def api_validate():
+    """Triggers a smart re-validation, skipping already confirmed reports."""
+    return _run_validation_stream(force_revalidate=False)
+
+@app.route('/api/validate/force', methods=['GET'])
+def api_validate_force():
+    """Triggers a full re-validation, ignoring any saved classifications."""
+    return _run_validation_stream(force_revalidate=True)
 
 
 @app.route('/api/extract')
@@ -238,6 +248,11 @@ def api_upload():
     return jsonify({"bank": bank, "year": year, "path": dest})
 
 
+<<<<<<< Current (Your changes)
+if __name__ == '__main__':
+    # Runs the server on port 5000
+    app.run(debug=True, port=5000)
+=======
 @app.route('/api/maintenance/cleanup', methods=['POST', 'GET'])
 def api_cleanup():
     return jsonify(cleanup_reports())
@@ -245,8 +260,90 @@ def api_cleanup():
 
 @app.route('/api/maintenance/migrate', methods=['POST', 'GET'])
 def api_migrate():
-    return jsonify(migrate_existing())
+    """Migrate existing reports to new structure."""
+    result = migrate_existing()
+    return jsonify(result)
+
+
+@app.route('/api/ai/classify', methods=['POST'])
+def api_ai_classify():
+    """
+    AI-powered document classification endpoint.
+    JSON body: { "pdf_path": "/path/to/document.pdf" }
+    """
+    if not AI_CLASSIFIER_AVAILABLE:
+        return jsonify({"error": "AI classifier not available"}), 503
+    
+    body = request.get_json(silent=True) or {}
+    pdf_path = body.get('pdf_path', '').strip()
+    
+    if not pdf_path:
+        return jsonify({"error": "Missing 'pdf_path' in request body"}), 400
+    
+    if not Path(pdf_path).exists():
+        return jsonify({"error": f"PDF not found at {pdf_path}"}), 404
+    
+    try:
+        result = classify_document(pdf_path)
+        return jsonify({
+            "pdf_path": pdf_path,
+            "ai_available": True,
+            **result
+        })
+    except Exception as e:
+        return jsonify({"error": f"Classification failed: {str(e)}"}), 500
+
+
+@app.route('/api/ai/classify_batch', methods=['POST'])
+def api_ai_classify_batch():
+    """
+    AI-powered batch document classification endpoint.
+    JSON body: { "pdf_paths": ["/path/to/doc1.pdf", "/path/to/doc2.pdf"] }
+    """
+    if not AI_CLASSIFIER_AVAILABLE:
+        return jsonify({"error": "AI classifier not available"}), 503
+    
+    body = request.get_json(silent=True) or {}
+    pdf_paths = body.get('pdf_paths', [])
+    
+    if not isinstance(pdf_paths, list) or not pdf_paths:
+        return jsonify({"error": "Provide non-empty 'pdf_paths' array in body"}), 400
+    
+    # Validate all paths exist
+    missing_paths = [p for p in pdf_paths if not Path(p).exists()]
+    if missing_paths:
+        return jsonify({"error": f"PDFs not found: {missing_paths}"}), 404
+    
+    try:
+        results = classify_batch(pdf_paths)
+        return jsonify({
+            "ai_available": True,
+            "results": results
+        })
+    except Exception as e:
+        return jsonify({"error": f"Batch classification failed: {str(e)}"}), 500
+
+
+@app.route('/api/ai/status')
+def api_ai_status():
+    """Check AI classifier status and availability."""
+    status = {
+        "ai_available": AI_CLASSIFIER_AVAILABLE,
+        "model_loaded": False
+    }
+    
+    if AI_CLASSIFIER_AVAILABLE:
+        try:
+            classifier = get_classifier()
+            status["model_loaded"] = classifier.model is not None
+            status["model_name"] = classifier.model_name
+            status["device"] = classifier.device
+        except Exception as e:
+            status["error"] = str(e)
+    
+    return jsonify(status)
+
 
 if __name__ == '__main__':
-    # Runs the server on port 5000
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+>>>>>>> Incoming (Background Agent changes)

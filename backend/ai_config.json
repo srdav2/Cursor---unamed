@@ -1,0 +1,160 @@
+{
+  "regional_terminology": {
+    "australia_uk_canada_singapore": {
+      "income_statement": [
+        "Consolidated statement of comprehensive income",
+        "Consolidated income statement",
+        "Profit and loss account"
+      ],
+      "balance_sheet": [
+        "Consolidated statement of financial position",
+        "Consolidated balance sheet"
+      ],
+      "cash_flow": [
+        "Consolidated statement of cash flows",
+        "Consolidated cash flow statement"
+      ],
+      "equity": [
+        "Consolidated statement of changes in equity"
+      ],
+      "notes": [
+        "Notes to the consolidated financial statements",
+        "Notes to the financial statements"
+      ],
+      "container": [
+        "Annual Report"
+      ]
+    },
+    "united_states": {
+      "income_statement": [
+        "Consolidated Statements of Operations",
+        "Consolidated Statements of Income",
+        "Consolidated Statements of Earnings"
+      ],
+      "balance_sheet": [
+        "Consolidated Balance Sheets",
+        "Consolidated Statements of Financial Condition"
+      ],
+      "cash_flow": [
+        "Consolidated Statements of Cash Flows"
+      ],
+      "equity": [
+        "Consolidated Statements of Changes in Stockholders' Equity"
+      ],
+      "notes": [
+        "Notes to Consolidated Financial Statements"
+      ],
+      "container": [
+        "Form 10-K",
+        "Annual Report"
+      ]
+    },
+    "europe": {
+      "income_statement": [
+        "Consolidated income statement",
+        "Profit and loss account"
+      ],
+      "balance_sheet": [
+        "Consolidated statement of financial position",
+        "Consolidated balance sheet"
+      ],
+      "cash_flow": [
+        "Consolidated statement of cash flows",
+        "Consolidated cash flow statement"
+      ],
+      "equity": [
+        "Consolidated statement of changes in equity"
+      ],
+      "notes": [
+        "Notes to the consolidated financial statements"
+      ],
+      "container": [
+        "Universal Registration Document",
+        "Annual Financial Report"
+      ]
+    },
+    "asia": {
+      "income_statement": [
+        "Consolidated Statement of Income",
+        "Consolidated Statement of Profit or Loss"
+      ],
+      "balance_sheet": [
+        "Consolidated Statement of Financial Position",
+        "Consolidated Balance Sheet"
+      ],
+      "cash_flow": [
+        "Consolidated Statement of Cash Flows"
+      ],
+      "equity": [
+        "Consolidated Statement of Changes in Equity"
+      ],
+      "notes": [
+        "Notes to the Consolidated Financial Statements"
+      ],
+      "container": [
+        "Annual Report",
+        "Integrated Report"
+      ]
+    }
+  },
+  "negative_keywords": {
+    "interim_reports": [
+      "Interim",
+      "Quarterly",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Half-Year",
+      "H1",
+      "H2"
+    ],
+    "presentations": [
+      "Presentation",
+      "Investor Day",
+      "Webcast",
+      "Slides",
+      "Transcript"
+    ],
+    "announcements": [
+      "Press Release",
+      "News",
+      "Trading Update",
+      "Results Announcement"
+    ],
+    "governance": [
+      "Proxy Statement",
+      "Circular",
+      "Notice of Meeting",
+      "AGM"
+    ],
+    "sustainability": [
+      "Sustainability",
+      "ESG",
+      "CSR",
+      "Modern Slavery"
+    ],
+    "supplementary": [
+      "Pillar 3",
+      "Risk Report",
+      "Fact Sheet",
+      "Factbook"
+    ],
+    "remuneration": [
+      "Remuneration Report"
+    ]
+  },
+  "validation_rules": {
+    "required_components": [
+      "income_statement",
+      "balance_sheet",
+      "cash_flow"
+    ],
+    "optional_components": [
+      "equity",
+      "notes"
+    ],
+    "minimum_optional_required": 1,
+    "confidence_threshold": 8.0
+  }
+}

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Management & Compliance Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="risk-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</head>
+<body class="dashboard-body risk-dashboard">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>Risk Management & Compliance</h1>
+                <p class="subtitle">Comprehensive Risk Analytics & Regulatory Compliance Monitoring</p>
+            </div>
+            <div class="header-right">
+                <div class="bank-selector">
+                    <select id="bankSelect" class="select-styled">
+                        <option value="">Select Bank</option>
+                        <option value="cba">Commonwealth Bank of Australia</option>
+                        <option value="nab">National Australia Bank</option>
+                        <option value="wbc">Westpac Banking Corporation</option>
+                        <option value="anz">ANZ Banking Group</option>
+                    </select>
+                </div>
+                <div class="year-selector">
+                    <select id="yearSelect" class="select-styled">
+                        <option value="">Select Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="dashboard-nav">
+            <button class="nav-tab active" data-tab="capital">Capital Adequacy</button>
+            <button class="nav-tab" data-tab="liquidity">Liquidity Risk</button>
+            <button class="nav-tab" data-tab="credit">Credit Risk</button>
+            <button class="nav-tab" data-tab="market">Market Risk</button>
+            <button class="nav-tab" data-tab="operational">Operational Risk</button>
+            <button class="nav-tab" data-tab="compliance">Compliance</button>
+            <button class="nav-tab" data-tab="stress">Stress Testing</button>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+            <!-- Capital Adequacy Tab -->
+            <div id="capital" class="tab-content active">
+                <div class="section-header">
+                    <h2>Capital Adequacy & Regulatory Capital</h2>
+                    <p>Comprehensive view of capital ratios, regulatory requirements, and capital structure</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card critical">
+                        <div class="metric-header">
+                            <h3>CET1 Ratio</h3>
+                            <span class="metric-status good">Above Requirement</span>
+                        </div>
+                        <div class="metric-value">12.8%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 85%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory Minimum: 10.5%</span>
+                        </div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+0.3% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Capital Ratio</h3>
+                            <span class="metric-status good">Strong</span>
+                        </div>
+                        <div class="metric-value">16.0%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory Minimum: 12.0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Leverage Ratio</h3>
+                            <span class="metric-status good">Adequate</span>
+                        </div>
+                        <div class="metric-value">5.2%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 87%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory Minimum: 3.0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Risk-Weighted Assets</h3>
+                            <span class="metric-status neutral">Stable</span>
+                        </div>
+                        <div class="metric-value">$485.2B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↗</span>
+                            <span class="trend-text">+2.1% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Capital Structure Composition</h3>
+                        <canvas id="capitalStructureChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Capital Ratios Trend</h3>
+                        <canvas id="capitalRatiosTrendChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="risk-alerts">
+                    <h3>Risk Alerts & Notifications</h3>
+                    <div class="alert-list">
+                        <div class="alert-item warning">
+                            <div class="alert-icon">⚠️</div>
+                            <div class="alert-content">
+                                <h4>Capital Buffer Monitoring</h4>
+                                <p>CET1 ratio approaching internal buffer threshold. Consider capital planning review.</p>
+                            </div>
+                            <div class="alert-time">2 hours ago</div>
+                        </div>
+                        <div class="alert-item info">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-content">
+                                <h4>Regulatory Update</h4>
+                                <p>New capital requirements effective Q2 2024. Impact assessment required.</p>
+                            </div>
+                            <div class="alert-time">1 day ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liquidity Risk Tab -->
+            <div id="liquidity" class="tab-content">
+                <div class="section-header">
+                    <h2>Liquidity Risk Management</h2>
+                    <p>Liquidity ratios, funding sources, and cash flow analysis</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Liquidity Coverage Ratio</h3>
+                            <span class="metric-status good">Compliant</span>
+                        </div>
+                        <div class="metric-value">125%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory Minimum: 100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Net Stable Funding Ratio</h3>
+                            <span class="metric-status good">Strong</span>
+                        </div>
+                        <div class="metric-value">110%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="threshold-label">Regulatory Minimum: 100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Loan-to-Deposit Ratio</h3>
+                            <span class="metric-status good">Healthy</span>
+                        </div>
+                        <div class="metric-value">85.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-2.1% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Liquid Assets</h3>
+                            <span class="metric-status good">Adequate</span>
+                        </div>
+                        <div class="metric-value">$45.2B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+8.5% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Funding Sources & Maturity Profile</h3>
+                        <canvas id="fundingMaturityChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Liquidity Ratios Trend</h3>
+                        <canvas id="liquidityTrendsChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credit Risk Tab -->
+            <div id="credit" class="tab-content">
+                <div class="section-header">
+                    <h2>Credit Risk Management</h2>
+                    <p>Credit quality, loan portfolio analysis, and credit risk metrics</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card warning">
+                        <div class="metric-header">
+                            <h3>Non-Performing Loans</h3>
+                            <span class="metric-status warning">Increasing</span>
+                        </div>
+                        <div class="metric-value">0.85%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↗</span>
+                            <span class="trend-text">+0.12% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Loan Loss Provisions</h3>
+                            <span class="metric-status neutral">Stable</span>
+                        </div>
+                        <div class="metric-value">$2.8B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+5.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Credit Risk Weighted Assets</h3>
+                            <span class="metric-status neutral">Stable</span>
+                        </div>
+                        <div class="metric-value">$385.2B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↗</span>
+                            <span class="trend-text">+1.8% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Loan Portfolio Quality</h3>
+                            <span class="metric-status good">Strong</span>
+                        </div>
+                        <div class="metric-value">A+</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">→</span>
+                            <span class="trend-text">Stable vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Loan Portfolio by Sector</h3>
+                        <canvas id="loanPortfolioChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Credit Quality Distribution</h3>
+                        <canvas id="creditQualityChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Risk Tab -->
+            <div id="market" class="tab-content">
+                <div class="section-header">
+                    <h2>Market Risk Management</h2>
+                    <p>Market risk metrics, trading book analysis, and interest rate risk</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Value at Risk (VaR)</h3>
+                            <span class="metric-status good">Within Limits</span>
+                        </div>
+                        <div class="metric-value">$125M</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 65%"></div>
+                            </div>
+                            <span class="threshold-label">Limit: $200M</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Interest Rate Risk</h3>
+                            <span class="metric-status good">Controlled</span>
+                        </div>
+                        <div class="metric-value">$85M</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-12% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Foreign Exchange Risk</h3>
+                            <span class="metric-status neutral">Stable</span>
+                        </div>
+                        <div class="metric-value">$45M</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator neutral">→</span>
+                            <span class="trend-text">No change vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Trading Book Size</h3>
+                            <span class="metric-status neutral">Stable</span>
+                        </div>
+                        <div class="metric-value">$15.2B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+3.2% vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Market Risk Exposure by Type</h3>
+                        <canvas id="marketRiskChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>VaR Trend Analysis</h3>
+                        <canvas id="varTrendChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Risk Tab -->
+            <div id="operational" class="tab-content">
+                <div class="section-header">
+                    <h2>Operational Risk Management</h2>
+                    <p>Operational risk metrics, incident tracking, and control effectiveness</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Operational Risk Capital</h3>
+                            <span class="metric-status good">Adequate</span>
+                        </div>
+                        <div class="metric-value">$2.1B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-8.5% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Incident Rate</h3>
+                            <span class="metric-status good">Low</span>
+                        </div>
+                        <div class="metric-value">0.15%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-0.02% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Control Effectiveness</h3>
+                            <span class="metric-status good">Strong</span>
+                        </div>
+                        <div class="metric-value">94.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+2.1% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Business Continuity</h3>
+                            <span class="metric-status good">Excellent</span>
+                        </div>
+                        <div class="metric-value">99.9%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">→</span>
+                            <span class="trend-text">Stable vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Operational Risk Events by Category</h3>
+                        <canvas id="operationalRiskChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Control Effectiveness Trend</h3>
+                        <canvas id="controlEffectivenessChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Tab -->
+            <div id="compliance" class="tab-content">
+                <div class="section-header">
+                    <h2>Regulatory Compliance</h2>
+                    <p>Compliance monitoring, regulatory reporting, and audit status</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Compliance Score</h3>
+                            <span class="metric-status good">Excellent</span>
+                        </div>
+                        <div class="metric-value">96.8%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+1.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Regulatory Breaches</h3>
+                            <span class="metric-status good">Low</span>
+                        </div>
+                        <div class="metric-value">3</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-2 vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Audit Findings</h3>
+                            <span class="metric-status good">Minimal</span>
+                        </div>
+                        <div class="metric-value">5</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-3 vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Regulatory Reporting</h3>
+                            <span class="metric-status good">On Time</span>
+                        </div>
+                        <div class="metric-value">100%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">→</span>
+                            <span class="trend-text">Stable vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Compliance Status by Category</h3>
+                        <canvas id="complianceStatusChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Regulatory Breaches Trend</h3>
+                        <canvas id="breachesTrendChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stress Testing Tab -->
+            <div id="stress" class="tab-content">
+                <div class="section-header">
+                    <h2>Stress Testing & Scenario Analysis</h2>
+                    <p>Stress test results, scenario analysis, and forward-looking risk assessment</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Severe Stress CET1</h3>
+                            <span class="metric-status good">Above Minimum</span>
+                        </div>
+                        <div class="metric-value">8.2%</div>
+                        <div class="metric-threshold">
+                            <div class="threshold-bar">
+                                <div class="threshold-fill" style="width: 78%"></div>
+                            </div>
+                            <span class="threshold-label">Minimum: 4.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Economic Capital</h3>
+                            <span class="metric-status good">Adequate</span>
+                        </div>
+                        <div class="metric-value">$18.5B</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+5.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Stress Test Score</h3>
+                            <span class="metric-status good">Strong</span>
+                        </div>
+                        <div class="metric-value">85/100</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+3 vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Recovery Time</h3>
+                            <span class="metric-status good">Fast</span>
+                        </div>
+                        <div class="metric-value">2.5 years</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↘</span>
+                            <span class="trend-text">-0.3 years vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Stress Test Results by Scenario</h3>
+                        <canvas id="stressTestChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Economic Capital Allocation</h3>
+                        <canvas id="economicCapitalChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="risk-dashboard.js"></script>
+</body>
+</html>

@@ -201,11 +201,8 @@
                 <details open style="margin-top: 24px;">
                     <summary><h3>Library Maintenance</h3></summary>
                     <div style="margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                      <button id="mr-validate" class="button" title="Re-run classification on all PDFs in the library">Validate Library</button>
-                      <div style="display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" id="mr-force-revalidate" />
-                        <label for="mr-force-revalidate" title="If checked, ignores saved results and re-analyzes every PDF.">Force Re-validation</label>
-                      </div>
+                      <button id="mr-validate" class="button" title="Re-run classification, skipping already confirmed reports.">Smart Validate</button>
+                      <button id="mr-force-validate" class="button" title="Re-analyze every single PDF from scratch.">Force Re-validate</button>
                       <button id="mr-refresh-index" class="button" title="Refresh index from backend">Refresh Index</button>
                     </div>
                     <div id="live-validation-log" style="margin-top: 16px;">

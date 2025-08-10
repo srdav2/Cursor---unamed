@@ -590,21 +590,18 @@ function wireModals(){
     const refreshBtn = document.getElementById('mr-refresh-index');
     const collectSelBtn = document.getElementById('mr-collect-selected');
     const collectAllBtn = document.getElementById('mr-collect-all');
-    const cleanupBtn = document.getElementById('mr-cleanup');
-    const migrateBtn = document.getElementById('mr-migrate');
     const validateBtn = document.getElementById('mr-validate');
+    const forceValidateBtn = document.getElementById('mr-force-validate');
 
-    async function cleanup(){ try { await fetchJSON(`${backend.base}/api/maintenance/cleanup`, { method: 'POST' }); await refreshIndex(); alert('Cleanup done.'); } catch (e) { alert('Cleanup failed. Ensure backend is running.'); } }
-    async function migrate(){ try { await fetchJSON(`${backend.base}/api/maintenance/migrate`, { method: 'POST' }); await refreshIndex(); alert('Migration done.'); } catch (e) { alert('Migration failed. Ensure backend is running.'); } }
-    async function validate() {
+    async function startValidation(force = false) {
       const logContainer = document.getElementById('log-container');
       if (!logContainer) return;
       
       const throttleSecs = document.getElementById('settings-throttle')?.value || '0';
-      const forceRevalidate = document.getElementById('mr-force-revalidate')?.checked || false;
-
+      const endpoint = force ? `${backend.base}/api/validate/force` : `${backend.base}/api/validate`;
+      
       logContainer.innerHTML = 'Connecting to validation stream...';
-      const eventSource = new EventSource(`${backend.base}/api/validate?throttle_secs=${throttleSecs}&force=${forceRevalidate}`);
+      const eventSource = new EventSource(`${endpoint}?throttle_secs=${throttleSecs}`);
 
       eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
@@ -630,8 +627,20 @@ function wireModals(){
                 logEntry.textContent = `[${new Date().toLocaleTimeString()}] ❌ FAILED: ${data.path} - ${details.error || 'Unknown error'}`;
                 logEntry.style.color = '#ff6347';
             }
+        } else if (data.type === 'rejection') {
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+            logEntry.style.color = '#ff6347';
+        } else if (['searching', 'found_candidate', 'downloading_replacement'].includes(data.type)) {
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+            logEntry.style.color = '#87ceeb'; // Light blue for search activities
+        } else if (data.type === 'replacement_success') {
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+            logEntry.style.color = '#32cd32'; // Green for success
+        } else if (['search_failed', 'replacement_failed', 'search_error'].includes(data.type)) {
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${data.message}`;
+            logEntry.style.color = '#ff6347'; // Red for failures
         } else if (data.type === 'finish') {
-          const summary = `Reclassified: ${data.reclassified}, Skipped: ${data.skipped}, Failed: ${data.failed}`;
+          const summary = `Reclassified: ${data.reclassified}, Corrected: ${data.corrected}, Skipped: ${data.skipped}, Failed: ${data.failed}`;
           logEntry.textContent = `[${new Date().toLocaleTimeString()}] 🎉 ${data.message} (${summary})`;
           logEntry.style.color = '#87ceeb';
           eventSource.close();
@@ -658,9 +667,8 @@ function wireModals(){
     if (refreshBtn) refreshBtn.addEventListener('click', refreshIndex);
     if (collectSelBtn) collectSelBtn.addEventListener('click', collectSelected);
     if (collectAllBtn) collectAllBtn.addEventListener('click', collectAll);
-    if (cleanupBtn) cleanupBtn.addEventListener('click', cleanup);
-    if (migrateBtn) migrateBtn.addEventListener('click', migrate);
-    if (validateBtn) validateBtn.addEventListener('click', validate);
+    if (validateBtn) validateBtn.addEventListener('click', () => startValidation(false));
+    if (forceValidateBtn) forceValidateBtn.addEventListener('click', () => startValidation(true));
   }
 
   function wireSettings(){

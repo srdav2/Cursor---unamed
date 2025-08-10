@@ -10,3 +10,6 @@ __pycache__/
 
 # macOS folder attributes
 .DS_Store
+
+# Environment variables
+backend/.env

@@ -152,7 +152,7 @@
         "is_financial": false,
         "classification": {
           "document_type": "Proxy Statement",
-          "confidence_score": 9.0
+          "confidence_score": 10.0
         }
       }
     ]
@@ -436,7 +436,7 @@
         "is_financial": false,
         "classification": {
           "document_type": "Interim Report",
-          "confidence_score": 10.0
+          "confidence_score": 9.0
         }
       },
       {
