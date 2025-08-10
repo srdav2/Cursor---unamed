@@ -1,9 +1,16 @@
 {
+  "cba": {
+    "reports": []
+  },
   "nab": {
     "reports": [
       {
         "year": "2024",
-        "path": "data/reports/nab/nab_FY2024_Annual_Report.pdf"
+        "path": "data/reports/nab/nab_FY2024_Annual_Report.pdf",
+        "size_bytes": 8285754,
+        "abs_path": "data/reports/nab/nab_FY2024_Annual_Report.pdf",
+        "is_financial": true,
+        "score": 5
       }
     ]
   }

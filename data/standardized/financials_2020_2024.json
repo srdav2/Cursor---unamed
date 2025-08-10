@@ -1,0 +1,215 @@
+[
+  {
+    "bank_code": "nab",
+    "bank_name": "National Australia Bank Limited",
+    "country": "Australia",
+    "reporting_currency_registry": "AUD",
+    "year": 2024,
+    "net_interest_income": 16757.0,
+    "net_interest_income__raw": "16,757",
+    "net_interest_income__units": null,
+    "net_interest_income__currency_detected": null,
+    "operating_income": 20646.0,
+    "operating_income__raw": "20,646",
+    "operating_income__units": null,
+    "operating_income__currency_detected": null,
+    "operating_expenses": 2024.0,
+    "operating_expenses__raw": "2024.",
+    "operating_expenses__units": null,
+    "operating_expenses__currency_detected": null,
+    "total_assets": 1080248.0,
+    "total_assets__raw": "1,080,248",
+    "total_assets__units": null,
+    "total_assets__currency_detected": null,
+    "total_liabilities": 2024000000.0,
+    "total_liabilities__raw": "2024",
+    "total_liabilities__units": "millions",
+    "total_liabilities__currency_detected": "USD",
+    "total_equity": 62213.0,
+    "total_equity__raw": "62,213",
+    "total_equity__units": null,
+    "total_equity__currency_detected": null,
+    "customer_deposits": 12000000000.0,
+    "customer_deposits__raw": "12",
+    "customer_deposits__units": "billions",
+    "customer_deposits__currency_detected": "USD",
+    "loans_and_advances": 260.0,
+    "loans_and_advances__raw": "$260",
+    "loans_and_advances__units": "%",
+    "loans_and_advances__currency_detected": "USD",
+    "nim": 169.0,
+    "nim__raw": "169",
+    "nim__units": null,
+    "nim__currency_detected": null,
+    "roe": 1.0,
+    "roe__raw": "1",
+    "roe__units": null,
+    "roe__currency_detected": null,
+    "cet1_ratio": 1.0,
+    "cet1_ratio__raw": "1",
+    "cet1_ratio__units": "%",
+    "cet1_ratio__currency_detected": "USD",
+    "lcr": 2024000000000.0,
+    "lcr__raw": "2024",
+    "lcr__units": "billions",
+    "lcr__currency_detected": "USD",
+    "provenance": {
+      "net_interest_income": {
+        "page": 114,
+        "term": "Net interest income",
+        "coords": {
+          "term_bbox": {
+            "x0": 62.362,
+            "top": 143.58977000000004,
+            "x1": 132.78850000000003,
+            "bottom": 150.83977000000004
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_net_interest_income.png"
+      },
+      "operating_income": {
+        "page": 115,
+        "term": "Operating income",
+        "coords": {
+          "term_bbox": {
+            "x0": 63.232749999999996,
+            "top": 169.10177,
+            "x1": 128.30155075000002,
+            "bottom": 176.35177
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_operating_income.png"
+      },
+      "operating_expenses": {
+        "page": 17,
+        "term": "Expenses",
+        "coords": {
+          "term_bbox": {
+            "x0": 348.3088,
+            "top": 329.76657,
+            "x1": 386.1328,
+            "bottom": 337.76656999999994
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_operating_expenses.png"
+      },
+      "total_assets": {
+        "page": 116,
+        "term": "Total assets",
+        "coords": {
+          "term_bbox": {
+            "x0": 62.362,
+            "top": 345.48777,
+            "x1": 106.96405075,
+            "bottom": 352.73777
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_total_assets.png"
+      },
+      "total_liabilities": {
+        "page": 116,
+        "term": "Total liabilities",
+        "coords": {
+          "term_bbox": {
+            "x0": 311.8107,
+            "top": 202.9283700000001,
+            "x1": 366.5627,
+            "bottom": 210.9283700000001
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_total_liabilities.png"
+      },
+      "total_equity": {
+        "page": 116,
+        "term": "Total equity",
+        "coords": {
+          "term_bbox": {
+            "x0": 62.362,
+            "top": 485.80277,
+            "x1": 105.40525000000001,
+            "bottom": 493.05277
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_total_equity.png"
+      },
+      "customer_deposits": {
+        "page": 14,
+        "term": "Customer deposits",
+        "coords": {
+          "term_bbox": {
+            "x0": 109.0271,
+            "top": 498.72326999999996,
+            "x1": 182.2991,
+            "bottom": 506.72326999999996
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_customer_deposits.png"
+      },
+      "loans_and_advances": {
+        "page": 9,
+        "term": "Loans and advances",
+        "coords": {
+          "term_bbox": {
+            "x0": 151.43215610648014,
+            "top": 630.58644137096,
+            "x1": 208.49421321048015,
+            "bottom": 636.3292093709599
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_loans_and_advances.png"
+      },
+      "nim": {
+        "page": 114,
+        "term": "Net interest margin",
+        "coords": {
+          "term_bbox": {
+            "x0": 62.363000000000056,
+            "top": 460.07376999999997,
+            "x1": 130.33905075000007,
+            "bottom": 467.32376999999997
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_nim.png"
+      },
+      "roe": {
+        "page": 9,
+        "term": "Return on equity",
+        "coords": {
+          "term_bbox": {
+            "x0": 421.7423316104799,
+            "top": 129.95585533095993,
+            "x1": 482.5773872904799,
+            "bottom": 137.61287933096003
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_roe.png"
+      },
+      "cet1_ratio": {
+        "page": 118,
+        "term": "CET1 ratio",
+        "coords": {
+          "term_bbox": {
+            "x0": 145.34860000000003,
+            "top": 294.32167000000004,
+            "x1": 182.18860000000004,
+            "bottom": 302.32167000000004
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_cet1_ratio.png"
+      },
+      "lcr": {
+        "page": 18,
+        "term": "LCR",
+        "coords": {
+          "term_bbox": {
+            "x0": 81.13210000000001,
+            "top": 253.16027000000008,
+            "x1": 94.7001,
+            "bottom": 261.1602700000001
+          }
+        },
+        "snippet": "backend/qc_snippets/nab_FY2024_Annual_Report_lcr.png"
+      }
+    }
+  }
+]
