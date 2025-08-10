@@ -77,6 +77,7 @@ DEFAULT_BANK_SOURCES: Dict[str, List[str]] = {
 
     # Switzerland
     "ubs": ["https://www.ubs.com/global/en/investor-relations/financial-information/annual-reporting.html"],
+    "cs": ["https://www.credit-suisse.com/about-us/en/investor-relations/financial-disclosures/annual-reports.html"],
 
     # Japan
     "mufg": ["https://www.mufg.jp/english/ir/library/annualreport/"],
@@ -490,7 +491,7 @@ def migrate_existing() -> Dict[str, List[str]]:
     downloads = os.path.join('data', 'downloads')
     if not os.path.exists(downloads):
         return {"moved": moved}
-    bank_codes = list(BANK_SOURCES.keys())
+    bank_codes = list(BANK_REGISTRY.keys()) # Use BANK_REGISTRY keys for migration
     for fname in os.listdir(downloads):
         if not fname.lower().endswith('.pdf'):
             continue
