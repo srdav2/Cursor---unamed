@@ -248,11 +248,6 @@ def api_upload():
     return jsonify({"bank": bank, "year": year, "path": dest})
 
 
-<<<<<<< Current (Your changes)
-if __name__ == '__main__':
-    # Runs the server on port 5000
-    app.run(debug=True, port=5000)
-=======
 @app.route('/api/maintenance/cleanup', methods=['POST', 'GET'])
 def api_cleanup():
     return jsonify(cleanup_reports())
@@ -344,6 +339,18 @@ def api_ai_status():
     return jsonify(status)
 
 
+# Serve dashboard
+@app.route('/')
+def serve_dashboard():
+    """Serve the main dashboard HTML file."""
+    return send_file('../dashboard.html')
+
+
+@app.route('/index.html')
+def serve_index():
+    """Serve the index HTML file."""
+    return send_file('../index.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
->>>>>>> Incoming (Background Agent changes)

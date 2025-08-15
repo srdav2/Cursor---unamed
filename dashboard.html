@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Financial Analytics Dashboard</title>
+    <link rel="stylesheet" href="frontend/dashboards/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>Bank Financial Analytics</h1>
+                <p class="subtitle">Comprehensive Financial Analysis & Insights</p>
+            </div>
+            <div class="header-right">
+                <div class="bank-selector">
+                    <select id="bankSelect" class="select-styled">
+                        <option value="">Select Bank</option>
+                        <option value="cba">Commonwealth Bank of Australia</option>
+                        <option value="nab" selected>National Australia Bank</option>
+                        <option value="wbc">Westpac Banking Corporation</option>
+                        <option value="anz">ANZ Banking Group</option>
+                    </select>
+                </div>
+                <div class="year-selector">
+                    <select id="yearSelect" class="select-styled">
+                        <option value="">Select Year</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="dashboard-nav">
+            <button class="nav-tab active" data-tab="overview">Overview</button>
+            <button class="nav-tab" data-tab="profitability">Profitability</button>
+            <button class="nav-tab" data-tab="risk">Risk & Capital</button>
+            <button class="nav-tab" data-tab="liquidity">Liquidity</button>
+            <button class="nav-tab" data-tab="efficiency">Efficiency</button>
+            <button class="nav-tab" data-tab="comparison">Peer Comparison</button>
+            <button class="nav-tab" data-tab="trends">Trends & Forecasts</button>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card primary">
+                        <div class="metric-header">
+                            <h3>Net Interest Income</h3>
+                            <span class="metric-change positive">+12.5%</span>
+                        </div>
+                        <div class="metric-value">$24.8B</div>
+                        <div class="metric-chart">
+                            <canvas id="niiChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Net Profit After Tax</h3>
+                            <span class="metric-change positive">+8.3%</span>
+                        </div>
+                        <div class="metric-value">$9.2B</div>
+                        <div class="metric-chart">
+                            <canvas id="npatChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Return on Equity</h3>
+                            <span class="metric-change positive">+2.1%</span>
+                        </div>
+                        <div class="metric-value">14.2%</div>
+                        <div class="metric-chart">
+                            <canvas id="roeChart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>CET1 Ratio</h3>
+                            <span class="metric-change positive">+0.3%</span>
+                        </div>
+                        <div class="metric-value">12.8%</div>
+                        <div class="metric-chart">
+                            <canvas id="cet1Chart" width="200" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Financial Performance Overview</h3>
+                        <canvas id="performanceChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Asset Composition</h3>
+                        <canvas id="assetCompositionChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profitability Tab -->
+            <div id="profitability" class="tab-content">
+                <div class="section-header">
+                    <h2>Profitability Analysis</h2>
+                    <p>Comprehensive analysis of revenue streams, margins, and profitability drivers</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Net Interest Margin</h3>
+                        <div class="metric-value">2.15%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+0.08% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Cost-to-Income Ratio</h3>
+                        <div class="metric-value">45.2%</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator negative">↘</span>
+                            <span class="trend-text">-1.2% vs LY</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <h3>Operating Leverage</h3>
+                        <div class="metric-value">1.15x</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">↗</span>
+                            <span class="trend-text">+0.05x vs LY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card large">
+                        <h3>Revenue Breakdown</h3>
+                        <canvas id="revenueBreakdownChart" width="400" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Margin Trends</h3>
+                        <canvas id="marginTrendsChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other tabs content from frontend/dashboards/index.html... -->
+            <!-- Risk & Capital Tab, Liquidity Tab, etc. -->
+
+            <!-- No Backend Required Notice -->
+            <div id="no-backend-notice" style="display: none; padding: 20px; background: #fff3cd; border-left: 5px solid #ffc107; margin-top: 20px;">
+                <h3>⚠️ Static Dashboard Mode</h3>
+                <p>This dashboard is currently running in static mode with sample data. For full functionality including real-time data extraction and API connections, the backend server needs to be running.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Standalone Dashboard Script -->
+    <script>
+        // Dashboard JavaScript
+        class BankDashboard {
+            constructor() {
+                this.currentBank = "nab";
+                this.currentYear = "2024";
+                this.charts = {};
+                this.data = {};
+                this.isStaticMode = true; // Static mode flag
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadInitialData();
+                this.initializeCharts();
+                
+                // Try to load real data if backend is available
+                this.loadBankData();
+            }
+
+            setupEventListeners() {
+                // Tab navigation
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+
+                // Bank and year selectors
+                document.getElementById('bankSelect').addEventListener('change', (e) => {
+                    this.currentBank = e.target.value;
+                    this.loadBankData();
+                });
+
+                document.getElementById('yearSelect').addEventListener('change', (e) => {
+                    this.currentYear = e.target.value;
+                    this.loadBankData();
+                });
+            }
+
+            switchTab(tabName) {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Add active class to selected tab and content
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                document.getElementById(tabName)?.classList.add('active');
+
+                // Initialize charts for the new tab
+                this.initializeTabCharts(tabName);
+            }
+
+            loadInitialData() {
+                // Load sample data for demonstration
+                this.data = {
+                    overview: {
+                        netInterestIncome: { value: 24800, change: 12.5, trend: [22000, 23500, 24800] },
+                        netProfitAfterTax: { value: 9200, change: 8.3, trend: [8500, 8900, 9200] },
+                        returnOnEquity: { value: 14.2, change: 2.1, trend: [12.1, 13.8, 14.2] },
+                        cet1Ratio: { value: 12.8, change: 0.3, trend: [12.5, 12.7, 12.8] }
+                    },
+                    profitability: {
+                        netInterestMargin: { value: 2.15, change: 0.08, trend: [2.07, 2.12, 2.15] },
+                        costToIncomeRatio: { value: 45.2, change: -1.2, trend: [46.4, 45.8, 45.2] },
+                        operatingLeverage: { value: 1.15, change: 0.05, trend: [1.10, 1.12, 1.15] }
+                    },
+                    risk: {
+                        cet1Ratio: { value: 12.8, regulatory: 10.5 },
+                        liquidityCoverageRatio: { value: 125, regulatory: 100 },
+                        nonPerformingLoans: { value: 0.85, change: 0.12, trend: [0.73, 0.78, 0.85] }
+                    },
+                    liquidity: {
+                        loanToDepositRatio: { value: 85.2, change: -2.1, trend: [87.3, 86.1, 85.2] },
+                        wholesaleFunding: { value: 15.8, change: 1.2, trend: [14.6, 15.2, 15.8] },
+                        liquidAssets: { value: 45200, change: 8.5, trend: [41600, 43200, 45200] }
+                    },
+                    efficiency: {
+                        costToIncomeRatio: { value: 45.2, change: -1.2, trend: [46.4, 45.8, 45.2] },
+                        revenuePerEmployee: { value: 485, change: 5.8, trend: [458, 472, 485] },
+                        digitalAdoption: { value: 78.5, change: 12.3, trend: [66.2, 72.1, 78.5] }
+                    }
+                };
+
+                // Bank-specific demo data
+                const bankData = {
+                    nab: {
+                        overview: {
+                            netInterestIncome: { value: 24800, change: 12.5 },
+                            netProfitAfterTax: { value: 9200, change: 8.3 },
+                            returnOnEquity: { value: 14.2, change: 2.1 },
+                            cet1Ratio: { value: 12.8, change: 0.3 }
+                        }
+                    },
+                    cba: {
+                        overview: {
+                            netInterestIncome: { value: 27400, change: 10.2 },
+                            netProfitAfterTax: { value: 10100, change: 7.5 },
+                            returnOnEquity: { value: 13.8, change: 1.8 },
+                            cet1Ratio: { value: 12.5, change: 0.2 }
+                        }
+                    },
+                    wbc: {
+                        overview: {
+                            netInterestIncome: { value: 23100, change: 9.8 },
+                            netProfitAfterTax: { value: 8500, change: 6.9 },
+                            returnOnEquity: { value: 13.5, change: 1.5 },
+                            cet1Ratio: { value: 12.2, change: 0.1 }
+                        }
+                    },
+                    anz: {
+                        overview: {
+                            netInterestIncome: { value: 22800, change: 8.7 },
+                            netProfitAfterTax: { value: 8300, change: 5.4 },
+                            returnOnEquity: { value: 13.1, change: 1.2 },
+                            cet1Ratio: { value: 12.0, change: 0.4 }
+                        }
+                    }
+                };
+
+                // Apply bank-specific data if available
+                if (this.currentBank && bankData[this.currentBank]) {
+                    this.data.overview = {
+                        ...this.data.overview,
+                        ...bankData[this.currentBank].overview
+                    };
+                }
+
+                this.updateDashboard();
+            }
+
+            async loadBankData() {
+                if (!this.currentBank || !this.currentYear) return;
+
+                try {
+                    // Check if backend is available
+                    const statusResponse = await fetch('/api/status');
+                    if (!statusResponse.ok) {
+                        throw new Error('Backend not available');
+                    }
+
+                    // Show loading state
+                    this.showLoading();
+
+                    // Get the available reports for the bank
+                    const indexResponse = await fetch('/api/index');
+                    const indexData = await indexResponse.json();
+                    
+                    // Find the report for this bank and year
+                    const bankReports = indexData[this.currentBank]?.reports || [];
+                    const report = bankReports.find(r => r.year === this.currentYear);
+                    
+                    if (report && report.path) {
+                        // Extract data from the PDF
+                        const extractResponse = await fetch(`/api/extract?pdf=${encodeURIComponent(report.path)}&bank=${this.currentBank}&year=${this.currentYear}`);
+                        const extractData = await extractResponse.json();
+
+                        if (extractData.items) {
+                            this.processBankData(extractData.items);
+                            this.isStaticMode = false;
+                            document.getElementById('no-backend-notice').style.display = 'none';
+                            this.updateDashboard();
+                        }
+                    } else {
+                        throw new Error(`No report found for ${this.currentBank} ${this.currentYear}`);
+                    }
+
+                } catch (error) {
+                    console.error('Error loading bank data:', error);
+                    // Fall back to static mode
+                    this.isStaticMode = true;
+                    document.getElementById('no-backend-notice').style.display = 'block';
+                    this.loadInitialData(); // Load static data
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            processBankData(items) {
+                // Process the extracted financial data
+                const processedData = {};
+                
+                items.forEach(item => {
+                    const metricName = item.standard_name;
+                    const value = parseFloat(item.value) || 0;
+                    
+                    processedData[metricName] = {
+                        value: value,
+                        unit: item.unit || '',
+                        confidence: item.confidence || 0,
+                        source: item.source || ''
+                    };
+                });
+
+                // Update overview metrics with real data
+                if (processedData.net_interest_income) {
+                    this.data.overview.netInterestIncome.value = processedData.net_interest_income.value;
+                }
+                if (processedData.net_profit_after_tax) {
+                    this.data.overview.netProfitAfterTax.value = processedData.net_profit_after_tax.value;
+                }
+                if (processedData.roe) {
+                    this.data.overview.returnOnEquity.value = processedData.roe.value;
+                }
+                if (processedData.cet1_ratio) {
+                    this.data.overview.cet1Ratio.value = processedData.cet1_ratio.value;
+                }
+            }
+
+            showLoading() {
+                document.body.classList.add('loading');
+            }
+
+            hideLoading() {
+                document.body.classList.remove('loading');
+            }
+
+            showError(message) {
+                // Create and show error notification
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-notification';
+                errorDiv.textContent = message;
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #dc3545;
+                    color: white;
+                    padding: 1rem;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                `;
+                
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+
+            initializeCharts() {
+                this.initializeOverviewCharts();
+                this.initializeProfitabilityCharts();
+            }
+
+            initializeTabCharts(tabName) {
+                switch(tabName) {
+                    case 'overview':
+                        this.initializeOverviewCharts();
+                        break;
+                    case 'profitability':
+                        this.initializeProfitabilityCharts();
+                        break;
+                }
+            }
+
+            initializeOverviewCharts() {
+                // Performance Overview Chart
+                const performanceCtx = document.getElementById('performanceChart');
+                if (performanceCtx) {
+                    if (this.charts.performance) {
+                        this.charts.performance.destroy();
+                    }
+                    
+                    this.charts.performance = new Chart(performanceCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['2022', '2023', '2024'],
+                            datasets: [{
+                                label: 'Net Interest Income',
+                                data: this.data.overview.netInterestIncome.trend || [22000, 23500, 24800],
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.4
+                            }, {
+                                label: 'Net Profit After Tax',
+                                data: this.data.overview.netProfitAfterTax.trend || [8500, 8900, 9200],
+                                borderColor: '#764ba2',
+                                backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + (value / 1000) + 'B';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Asset Composition Chart
+                const assetCtx = document.getElementById('assetCompositionChart');
+                if (assetCtx) {
+                    if (this.charts.assetComposition) {
+                        this.charts.assetComposition.destroy();
+                    }
+                    
+                    this.charts.assetComposition = new Chart(assetCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Loans & Advances', 'Investment Securities', 'Cash & Equivalents', 'Other Assets'],
+                            datasets: [{
+                                data: [65, 20, 10, 5],
+                                backgroundColor: [
+                                    '#667eea',
+                                    '#764ba2',
+                                    '#f093fb',
+                                    '#f5576c'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Update mini charts
+                this.updateMetricCard('niiChart', this.data.overview.netInterestIncome);
+                this.updateMetricCard('npatChart', this.data.overview.netProfitAfterTax);
+                this.updateMetricCard('roeChart', this.data.overview.returnOnEquity);
+                this.updateMetricCard('cet1Chart', this.data.overview.cet1Ratio);
+            }
+
+            initializeProfitabilityCharts() {
+                // Revenue Breakdown Chart
+                const revenueCtx = document.getElementById('revenueBreakdownChart');
+                if (revenueCtx) {
+                    if (this.charts.revenueBreakdown) {
+                        this.charts.revenueBreakdown.destroy();
+                    }
+                    
+                    this.charts.revenueBreakdown = new Chart(revenueCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Net Interest Income', 'Fee Income', 'Trading Income', 'Other Income'],
+                            datasets: [{
+                                label: 'Revenue (AUD millions)',
+                                data: [24800, 8200, 3100, 1800],
+                                backgroundColor: [
+                                    'rgba(102, 126, 234, 0.8)',
+                                    'rgba(118, 75, 162, 0.8)',
+                                    'rgba(240, 147, 251, 0.8)',
+                                    'rgba(245, 87, 108, 0.8)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + (value / 1000) + 'B';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Margin Trends Chart
+                const marginCtx = document.getElementById('marginTrendsChart');
+                if (marginCtx) {
+                    if (this.charts.marginTrends) {
+                        this.charts.marginTrends.destroy();
+                    }
+                    
+                    this.charts.marginTrends = new Chart(marginCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['2022', '2023', '2024'],
+                            datasets: [{
+                                label: 'Net Interest Margin',
+                                data: this.data.profitability.netInterestMargin.trend || [2.07, 2.12, 2.15],
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    min: 1.8,
+                                    max: 2.3
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            updateDashboard() {
+                // Update overview metric cards
+                if (this.data.overview) {
+                    const elements = document.querySelectorAll('.metric-card');
+                    
+                    // Update Net Interest Income
+                    this.updateMetricValue(elements[0], this.data.overview.netInterestIncome.value, 
+                                          this.data.overview.netInterestIncome.change);
+                    
+                    // Update Net Profit After Tax
+                    this.updateMetricValue(elements[1], this.data.overview.netProfitAfterTax.value,
+                                          this.data.overview.netProfitAfterTax.change);
+                    
+                    // Update Return on Equity
+                    this.updateMetricValue(elements[2], this.data.overview.returnOnEquity.value,
+                                          this.data.overview.returnOnEquity.change, '%');
+                    
+                    // Update CET1 Ratio
+                    this.updateMetricValue(elements[3], this.data.overview.cet1Ratio.value,
+                                          this.data.overview.cet1Ratio.change, '%');
+                }
+                
+                // Reinitialize charts with new data
+                this.initializeCharts();
+            }
+
+            updateMetricValue(element, value, change, suffix = '') {
+                if (!element) return;
+                
+                const valueEl = element.querySelector('.metric-value');
+                const changeEl = element.querySelector('.metric-change');
+                
+                if (valueEl) {
+                    if (suffix === '%') {
+                        valueEl.textContent = value.toFixed(1) + suffix;
+                    } else {
+                        valueEl.textContent = '$' + (value / 1000).toFixed(1) + 'B';
+                    }
+                }
+                
+                if (changeEl) {
+                    changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+                    changeEl.className = 'metric-change ' + (change >= 0 ? 'positive' : 'negative');
+                }
+            }
+
+            updateMetricCard(chartId, data) {
+                const canvas = document.getElementById(chartId);
+                if (canvas && data) {
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Clear previous chart
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw mini trend chart
+                    const width = canvas.width;
+                    const height = canvas.height;
+                    const padding = 10;
+                    const chartWidth = width - 2 * padding;
+                    const chartHeight = height - 2 * padding;
+                    
+                    // Find min and max values for scaling
+                    const values = data.trend || [data.value * 0.9, data.value * 0.95, data.value];
+                    const min = Math.min(...values) * 0.9; // Add some padding
+                    const max = Math.max(...values) * 1.05;
+                    const range = max - min || 1;
+                    
+                    // Draw trend line
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#667eea';
+                    ctx.lineWidth = 2;
+                    
+                    values.forEach((value, index) => {
+                        const x = padding + (index / (values.length - 1)) * chartWidth;
+                        const y = height - padding - ((value - min) / range) * chartHeight;
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new BankDashboard();
+        });
+    </script>
+</body>
+</html>

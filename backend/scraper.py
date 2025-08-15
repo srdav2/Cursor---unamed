@@ -178,6 +178,7 @@ BANK_REGISTRY: Dict[str, Dict[str, Any]] = {
 
     # Switzerland
     "ubs": {"name": "UBS Group AG", "country": "Switzerland", "continent": "Europe", "reporting_currency": "USD"},
+    "cs": {"name": "Credit Suisse Group AG", "country": "Switzerland", "continent": "Europe", "reporting_currency": "CHF"},
 
     # Japan
     "mufg": {"name": "Mitsubishi UFJ Financial Group, Inc.", "country": "Japan", "continent": "Asia", "reporting_currency": "JPY"},

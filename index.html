@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Performance Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 20px 0;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #0984e3;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .bank-logos {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            gap: 20px;
+        }
+        .bank-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .bank-logo:nth-child(1) { color: #0984e3; }
+        .bank-logo:nth-child(2) { color: #d63031; }
+        .bank-logo:nth-child(3) { color: #00b894; }
+        .bank-logo:nth-child(4) { color: #fdcb6e; }
+    </style>
+    <script>
+        window.onload = function() {
+            // Redirect to dashboard.html automatically after 3 seconds
+            setTimeout(function() {
+                window.location.href = 'dashboard.html';
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Bank Performance Dashboard</h1>
+        <p>Comprehensive Financial Analysis & Insights Tool</p>
+        
+        <div class="bank-logos">
+            <div class="bank-logo">CBA</div>
+            <div class="bank-logo">NAB</div>
+            <div class="bank-logo">ANZ</div>
+            <div class="bank-logo">WBC</div>
+        </div>
+        
+        <p>Loading dashboard automatically...</p>
+        <a href="dashboard.html" class="btn">Open Dashboard Now</a>
+    </div>
+</body>
+</html>
